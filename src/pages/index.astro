@@ -27,116 +27,131 @@ const work = await Promise.all(
     return { ...item, Content };
   })
 );
-
 ---
 
 <PageLayout title={HOME.TITLE} description={HOME.DESCRIPTION}>
   <Container>
-      <!-- Hero Section -->
-    <section class="min-h-screen flex items-center justify-between">
-      <div class="space-y-6 max-w-2xl">
+    <!-- Hero Section -->
+    <section class="min-h-screen flex items-center justify-center py-20">
+      <div class="space-y-8 max-w-3xl">
         <h1 class="text-6xl text-gray-50 font-bold">
-          Hello, I'm <span class="text-purple-500">hush</span>.
+          Hello, I'm <span class="text-orange-300">hush</span>.
         </h1>
         
-        <p class="text-xl text-gray-400 max-w-lg">
-          I am a second year Computer Science Undergraduate in UGM specializing in cybersecurity, 
-          currently learning blue teaming and digital forensics.  
+        <p class="text-xl text-gray-400 max-w-2xl">
+          Welcome to my page. Projects, experiments, notes, and writeups on cybersecurity + software engineering. Currently learning blue teaming and defensive security.
         </p>
-        </article>
-      </section>
 
-      <section class="animate space-y-6">
-        <div class="flex flex-wrap gap-y-2 items-center justify-between">
-          <h5 class="font-semibold text-black dark:text-white">
-            Latest posts
-          </h5>
-          <Link href="/blog">
-            See all posts
-          </Link>
+        <!-- Credibility Strip -->
+        <div class="space-y-4 py-6 border-y border-white/10">
+          <div class="flex items-start gap-3">
+            <span class="text-purple-500 font-semibold">🎓</span>
+            <p class="text-gray-300">
+              <span class="font-semibold">CS Undergraduate</span> @ Universitas Gadjah Mada
+            </p>
+          </div>
+          
+          <div class="flex items-start gap-3">
+            <span class="text-purple-500 font-semibold">🛠️</span>
+            <p class="text-gray-300">
+              <span class="font-semibold">Built projects in:</span> Web Security • APIs • Automation
+            </p>
+          </div>
+          
+          <div class="flex items-start gap-3">
+            <span class="text-purple-500 font-semibold">💡</span>
+            <p class="text-gray-300">
+              <span class="font-semibold">CTF Player:</span> cybersecurity for OmahTI UGM & KOMATIK
+            </p>
+          </div>
         </div>
-        <ul class="flex flex-col gap-4">
-          {blog.map(post => (
-            <li>
-              <ArrowCard entry={post} />
-            </li>
-          ))}
-        </ul>
-      </section>
 
-      <section class="animate space-y-6">
-        <div class="flex flex-wrap gap-y-2 items-center justify-between">
-          <h5 class="font-semibold text-black dark:text-white">
-            Work Experience
-          </h5>
-          <Link href="/work">
-            See all work
-          </Link>
-        </div>
-        <ul class="flex flex-col space-y-4">
-          {work.map(entry => (
-            <li>
-              <div class="text-sm opacity-75">
-                {dateRange(entry.data.dateStart, entry.data.dateEnd)}
-              </div>
-              <div class="font-semibold text-black dark:text-white">
-                {entry.data.company}
-              </div>
-              <div class="text-sm opacity-75">
-                {entry.data.role}
-              </div>
-              <article>
-                <entry.Content />
-              </article>
-            </li>
-          ))}
-        </ul>
-      </section>
-
-      <section class="animate space-y-6">
-        <div class="flex flex-wrap gap-y-2 items-center justify-between">
-          <h5 class="font-semibold text-black dark:text-white">
-            Recent projects
-          </h5>
-          <Link href="/projects">
-            See all projects
-          </Link>
-        </div>
-        <ul class="flex flex-col gap-4">
-          {projects.map(project => (
-            <li>
-              <ArrowCard entry={project} />
-            </li>
-          ))}
-        </ul>
-      </section>
-
-      <section class="animate space-y-4">
-        <h5 class="font-semibold text-black dark:text-white">
-          Let's Connect
-        </h5>
-        <article>
-          <p>
-            If you want to get in touch with me about something or just to say hi,
-            reach out on social media or send me an email.
-          </p>
-        </article>
-        <ul class="flex flex-wrap gap-2">
+        <!-- Social CTAs -->
+        <div class="flex flex-wrap gap-3 pt-4">
           {SOCIALS.map(SOCIAL => (
-            <li class="flex gap-x-2 text-nowrap">
-              <Link href={SOCIAL.HREF} external aria-label={`${SITE.NAME} on ${SOCIAL.NAME}`}>
-                {SOCIAL.NAME}
-              </Link>
-              {"/"}
-            </li>
-          ))}
-          <li class="line-clamp-1">
-            <Link href={`mailto:${SITE.EMAIL}`} aria-label={`Email ${SITE.NAME}`}>
-              {SITE.EMAIL}
+            <Link 
+              href={SOCIAL.HREF} 
+              external 
+              aria-label={`${SITE.NAME} on ${SOCIAL.NAME}`}
+              class="px-5 py-2.5 rounded-lg border border-white/10 hover:border-white/20 hover:bg-white/5 transition-all text-sm font-medium"
+            >
+              {SOCIAL.NAME}
             </Link>
+          ))}
+          <Link 
+            href={`mailto:${SITE.EMAIL}`} 
+            aria-label={`Email ${SITE.NAME}`}
+            class="px-5 py-2.5 rounded-lg bg-purple-500 hover:bg-purple-600 transition-all text-sm font-medium text-white"
+          >
+            Email Me
+          </Link>
+        </div>
+      </div>
+    </section>
+
+    <section class="animate space-y-6">
+      <div class="flex flex-wrap gap-y-2 items-center justify-between">
+        <h5 class="font-semibold text-black dark:text-white">
+          Latest posts
+        </h5>
+        <Link href="/blog">
+          See all posts
+        </Link>
+      </div>
+      <ul class="flex flex-col gap-4">
+        {blog.map(post => (
+          <li>
+            <ArrowCard entry={post} />
           </li>
-        </ul>
-      </section>
-    </div>
+        ))}
+      </ul>
+    </section>
+
+    <section class="animate space-y-6">
+      <div class="flex flex-wrap gap-y-2 items-center justify-between">
+        <h5 class="font-semibold text-black dark:text-white">
+          Work Experience
+        </h5>
+        <Link href="/work">
+          See all work
+        </Link>
+      </div>
+      <ul class="flex flex-col space-y-4">
+        {work.map(entry => (
+          <li>
+            <div class="text-sm opacity-75">
+              {dateRange(entry.data.dateStart, entry.data.dateEnd)}
+            </div>
+            <div class="font-semibold text-black dark:text-white">
+              {entry.data.company}
+            </div>
+            <div class="text-sm opacity-75">
+              {entry.data.role}
+            </div>
+            <article>
+              <entry.Content />
+            </article>
+          </li>
+        ))}
+      </ul>
+    </section>
+
+    <section class="animate space-y-6">
+      <div class="flex flex-wrap gap-y-2 items-center justify-between">
+        <h5 class="font-semibold text-black dark:text-white">
+          Recent projects
+        </h5>
+        <Link href="/projects">
+          See all projects
+        </Link>
+      </div>
+      <ul class="flex flex-col gap-4">
+        {projects.map(project => (
+          <li>
+            <ArrowCard entry={project} />
+          </li>
+        ))}
+      </ul>
+    </section>
   </Container>
 </PageLayout>
