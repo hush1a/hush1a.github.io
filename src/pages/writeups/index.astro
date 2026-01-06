@@ -1,0 +1,81 @@
+---
+import { getCollection } from "astro:content";
+import Container from "@components/Container.astro";
+import PageLayout from "@layouts/PageLayout.astro";
+import ArrowCard from "@components/ArrowCard.astro";
+import Link from "@components/Link.astro";
+import { WRITEUPS } from "@consts";
+
+const writeups = (await getCollection("writeups"))
+  .filter(writeup => !writeup.data.draft)
+  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+
+// Group by CTF
+const groupedByCTF = writeups.reduce((acc, writeup) => {
+  const ctf = writeup.data.ctf;
+  if (!acc[ctf]) acc[ctf] = [];
+  acc[ctf].push(writeup);
+  return acc;
+}, {} as Record<string, typeof writeups>);
+---
+
+<PageLayout title={WRITEUPS.TITLE} description={WRITEUPS.DESCRIPTION}>
+  <Container>
+    <div class="space-y-10">
+      <div class="animate">
+        <h1 class="text-3xl font-bold text-black dark:text-white">
+          {WRITEUPS.TITLE}
+        </h1>
+        <p class="text-gray-500 dark:text-gray-400 mt-2">
+          {WRITEUPS.DESCRIPTION}
+        </p>
+      </div>
+
+      <!-- Grouped by CTF -->
+      {Object.entries(groupedByCTF).map(([ctf, ctfWriteups]) => (
+        <section class="animate space-y-4">
+          <div class="flex flex-wrap gap-y-2 items-center justify-between">
+            <h2 class="text-2xl font-semibold text-black dark:text-white capitalize">
+              {ctf}
+            </h2>
+            <div class="text-sm opacity-75">
+              {ctfWriteups.length} {ctfWriteups.length === 1 ? 'challenge' : 'challenges'}
+            </div>
+          </div>
+          <ul class="space-y-4">
+            {ctfWriteups.map(writeup => (
+              <li>
+                <ArrowCard entry={writeup} />
+                <div class="flex flex-wrap gap-2 mt-2 ml-4 text-sm">
+                  <span class="px-2 py-1 rounded bg-blue-500/20 text-blue-300">
+                    {writeup.data.category}
+                  </span>
+                  {writeup.data.difficulty && (
+                    <span class={`px-2 py-1 rounded ${
+                      writeup.data.difficulty === 'Easy' ? 'bg-green-500/20 text-green-300' :
+                      writeup.data.difficulty === 'Medium' ? 'bg-yellow-500/20 text-yellow-300' :
+                      writeup.data.difficulty === 'Hard' ? 'bg-orange-500/20 text-orange-300' :
+                      'bg-red-500/20 text-red-300'
+                    }`}>
+                      {writeup.data.difficulty}
+                    </span>
+                  )}
+                  {writeup.data.points && (
+                    <span class="px-2 py-1 rounded bg-purple-500/20 text-purple-300">
+                      {writeup.data.points} pts
+                    </span>
+                  )}
+                  {writeup.data.solves && (
+                    <span class="px-2 py-1 rounded bg-gray-500/20 text-gray-300">
+                      {writeup.data.solves} solves
+                    </span>
+                  )}
+                </div>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ))}
+    </div>
+  </Container>
+</PageLayout>

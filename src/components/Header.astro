@@ -6,7 +6,7 @@ import { SITE } from "@consts";
 
 <header>
   <Container>
-    <div class="flex flex-wrap gap-y-2 justify-between">
+    <div class="flex flex-wrap gap-y-6 justify-between">
       <Link href="/" underline={false}>
         <div class="font-semibold">
           {SITE.NAME}
@@ -15,6 +15,12 @@ import { SITE } from "@consts";
       <nav class="flex gap-1">
         <Link href="/blog">
           blog
+        </Link>
+        <span>
+          {`/`}
+        </span>
+        <Link href="/writeups">
+          writeups
         </Link>
         <span>
           {`/`}

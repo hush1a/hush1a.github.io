@@ -32,4 +32,20 @@ const projects = defineCollection({
   }),
 });
 
-export const collections = { blog, work, projects };
+const writeups = defineCollection({
+  type: "content",
+  schema: z.object({
+    title: z.string(),
+    description: z.string(),
+    date: z.coerce.date(),
+    draft: z.boolean().optional(),
+    ctf: z.string(),
+    category: z.string(),
+    difficulty: z.enum(["Easy", "Medium", "Hard", "Insane"]).optional(),
+    points: z.number().optional(),
+    solves: z.number().optional(),
+    tags: z.array(z.string()).optional(),
+  }),
+});
+
+export const collections = { blog, work, projects, writeups };

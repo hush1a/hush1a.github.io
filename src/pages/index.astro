@@ -27,12 +27,22 @@ const work = await Promise.all(
     return { ...item, Content };
   })
 );
+
+// Helper function to get icon path for social
+const getSocialIcon = (name: string) => {
+  if (name === 'GitHub') {
+    return '/icons/github.svg';
+  } else if (name === 'LinkedIn') {
+    return '/icons/linkedin.svg';
+  } 
+  return '';
+};
 ---
 
 <PageLayout title={HOME.TITLE} description={HOME.DESCRIPTION}>
   <Container>
     <!-- Hero Section -->
-    <section class="min-h-screen flex items-center justify-center py-20">
+    <section class="py-20 md:py-32">
       <div class="space-y-8 max-w-3xl">
         <h1 class="text-6xl text-gray-50 font-bold">
           Hello, I'm <span class="text-orange-300">hush</span>.
@@ -69,27 +79,34 @@ const work = await Promise.all(
         <!-- Social CTAs -->
         <div class="flex flex-wrap gap-3 pt-4">
           {SOCIALS.map(SOCIAL => (
-            <Link 
-              href={SOCIAL.HREF} 
-              external 
+            <a 
+              href={SOCIAL.HREF}
+              target="_blank"
+              rel="noopener noreferrer"
               aria-label={`${SITE.NAME} on ${SOCIAL.NAME}`}
-              class="px-5 py-2.5 rounded-lg border border-white/10 hover:border-white/20 hover:bg-white/5 transition-all text-sm font-medium"
+              class="group px-6 py-3 rounded-full bg-white/5 backdrop-blur-sm border border-white/10 hover:bg-white/10 hover:border-white/20 transition-all duration-300 text-sm font-medium flex items-center gap-2"
             >
-              {SOCIAL.NAME}
-            </Link>
+              <img 
+                src={getSocialIcon(SOCIAL.NAME)} 
+                alt={SOCIAL.NAME}
+                class="w-5 h-5 group-hover:scale-110 transition-transform duration-300"
+              />
+              <span>{SOCIAL.NAME}</span>
+            </a>
           ))}
-          <Link 
-            href={`mailto:${SITE.EMAIL}`} 
+          <a 
+            href={`mailto:${SITE.EMAIL}`}
             aria-label={`Email ${SITE.NAME}`}
-            class="px-5 py-2.5 rounded-lg bg-purple-500 hover:bg-purple-600 transition-all text-sm font-medium text-white"
+            class="group px-6 py-3 rounded-full bg-gradient-to-r from-purple-500/20 to-pink-500/20 backdrop-blur-sm border border-purple-500/30 hover:from-purple-500/30 hover:to-pink-500/30 hover:border-purple-500/50 transition-all duration-300 text-sm font-medium flex items-center gap-2"
           >
-            Email Me
-          </Link>
+            <span class="group-hover:scale-110 transition-transform duration-300">👋</span>
+            <span>Email Me!</span>
+          </a>
         </div>
       </div>
     </section>
 
-    <section class="animate space-y-6">
+    <section class="animate space-y-6 py-12">
       <div class="flex flex-wrap gap-y-2 items-center justify-between">
         <h5 class="font-semibold text-black dark:text-white">
           Latest posts
@@ -107,7 +124,7 @@ const work = await Promise.all(
       </ul>
     </section>
 
-    <section class="animate space-y-6">
+    <section class="animate space-y-6 py-12">
       <div class="flex flex-wrap gap-y-2 items-center justify-between">
         <h5 class="font-semibold text-black dark:text-white">
           Work Experience
@@ -136,7 +153,7 @@ const work = await Promise.all(
       </ul>
     </section>
 
-    <section class="animate space-y-6">
+    <section class="animate space-y-6 py-12">
       <div class="flex flex-wrap gap-y-2 items-center justify-between">
         <h5 class="font-semibold text-black dark:text-white">
           Recent projects

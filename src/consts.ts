@@ -28,17 +28,22 @@ export const PROJECTS: Metadata = {
   DESCRIPTION: "A collection of my projects, with links to repositories and demos.",
 };
 
+export const WRITEUPS: Metadata = {
+  TITLE: "Writeups",
+  DESCRIPTION: "CTF challenge solutions and writeups.",
+};
+
 export const SOCIALS: Socials = [
   { 
     NAME: "twitter-x",
     HREF: "https://twitter.com/markhorn_dev",
   },
   { 
-    NAME: "github",
+    NAME: "GitHub",
     HREF: "https://github.com/hush1a"
   },
   { 
-    NAME: "linkedin",
+    NAME: "LinkedIn",
     HREF: "https://www.linkedin.com/in/bayu-putra-ibana-a734a5322",
   }
 ];
