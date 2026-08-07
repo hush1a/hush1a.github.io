@@ -102,69 +102,75 @@ const getSocialIcon = (name: string) => {
       </div>
     </section>
 
-    <section class="animate space-y-6 py-12">
-      <div class="flex flex-wrap gap-y-2 items-center justify-between">
-        <h5 class="font-semibold text-black dark:text-white">
-          Latest posts
-        </h5>
-        <Link href="/blog">
-          See all posts
-        </Link>
-      </div>
-      <ul class="flex flex-col gap-4">
-        {blog.map(post => (
-          <li>
-            <ArrowCard entry={post} />
-          </li>
-        ))}
-      </ul>
-    </section>
+    {blog.length > 0 && (
+      <section class="animate space-y-6 py-12">
+        <div class="flex flex-wrap gap-y-2 items-center justify-between">
+          <h5 class="font-semibold text-black dark:text-white">
+            Latest posts
+          </h5>
+          <Link href="/blog">
+            See all posts
+          </Link>
+        </div>
+        <ul class="flex flex-col gap-4">
+          {blog.map(post => (
+            <li>
+              <ArrowCard entry={post} />
+            </li>
+          ))}
+        </ul>
+      </section>
+    )}
 
-    <section class="animate space-y-6 py-12">
-      <div class="flex flex-wrap gap-y-2 items-center justify-between">
-        <h5 class="font-semibold text-black dark:text-white">
-          Work Experience
-        </h5>
-        <Link href="/work">
-          See all work
-        </Link>
-      </div>
-      <ul class="flex flex-col space-y-4">
-        {work.map(entry => (
-          <li>
-            <div class="text-sm opacity-75">
-              {dateRange(entry.data.dateStart, entry.data.dateEnd)}
-            </div>
-            <div class="font-semibold text-black dark:text-white">
-              {entry.data.company}
-            </div>
-            <div class="text-sm opacity-75">
-              {entry.data.role}
-            </div>
-            <article>
-              <entry.Content />
-            </article>
-          </li>
-        ))}
-      </ul>
-    </section>
+    {work.length > 0 && (
+      <section class="animate space-y-6 py-12">
+        <div class="flex flex-wrap gap-y-2 items-center justify-between">
+          <h5 class="font-semibold text-black dark:text-white">
+            Work Experience
+          </h5>
+          <Link href="/work">
+            See all work
+          </Link>
+        </div>
+        <ul class="flex flex-col space-y-4">
+          {work.map(entry => (
+            <li>
+              <div class="text-sm opacity-75">
+                {dateRange(entry.data.dateStart, entry.data.dateEnd)}
+              </div>
+              <div class="font-semibold text-black dark:text-white">
+                {entry.data.company}
+              </div>
+              <div class="text-sm opacity-75">
+                {entry.data.role}
+              </div>
+              <article>
+                <entry.Content />
+              </article>
+            </li>
+          ))}
+        </ul>
+      </section>
+    )}
 
-    <section class="animate space-y-6 py-12">
-      <div class="flex flex-wrap gap-y-2 items-center justify-between">
-        <h5 class="font-semibold text-black dark:text-white">
-          Recent projects
-        </h5>
-        <Link href="/projects">
-          See all projects
-        </Link>
-      </div>
-      <ul class="flex flex-col gap-4">
-        {projects.map(project => (
-          <li>
-            <ArrowCard entry={project} />
-          </li>
-        ))}
-      </ul>
-    </section>
+    {projects.length > 0 && (
+      <section class="animate space-y-6 py-12">
+        <div class="flex flex-wrap gap-y-2 items-center justify-between">
+          <h5 class="font-semibold text-black dark:text-white">
+            Recent projects
+          </h5>
+          <Link href="/projects">
+            See all projects
+          </Link>
+        </div>
+        <ul class="flex flex-col gap-4">
+          {projects.map(project => (
+            <li>
+              <ArrowCard entry={project} />
+            </li>
+          ))}
+        </ul>
+      </section>
+    )}
   </Container>
 </PageLayout>

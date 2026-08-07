@@ -16,6 +16,11 @@ const projects = (await getCollection("projects"))
       <div class="animate font-semibold text-black dark:text-white">
         Projects
       </div>
+      {projects.length === 0 && (
+        <p class="animate text-sm opacity-75">
+          No projects listed yet.
+        </p>
+      )}
       <ul class="animate flex flex-col gap-4">
         {
           projects.map((project) => (

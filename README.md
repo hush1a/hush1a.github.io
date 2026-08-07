@@ -1,64 +1,35 @@
-![Astro Nano](_astro_nano.png)
+# hush1a.github.io
 
-Astro Nano is a static, minimalist, lightweight, lightning fast portfolio and blog theme.
+Personal site — projects, notes, and CTF writeups on cybersecurity and software engineering.
 
-Built with Astro, Tailwind and Typescript, an no frameworks.
+Live at [hush1a.github.io](https://hush1a.github.io).
 
-It was designed as an even more minimal theme than my popular theme [Astro Sphere](https://github.com/markhorn-dev/astro-sphere)
+Built with [Astro](https://astro.build), Tailwind CSS, and TypeScript. No UI framework, no client-side JS beyond the theme toggle. Based on the [Astro Nano](https://github.com/markhorn-dev/astro-nano) theme by markhorn-dev.
 
-## 🚀 Deploy your own
+## Development
 
-[![Deploy with Vercel](_deploy_vercel.svg)](https://vercel.com/new/clone?repository-url=https://github.com/markhorn-dev/astro-nano)  [![Deploy with Netlify](_deploy_netlify.svg)](https://app.netlify.com/start/deploy?repository=https://github.com/markhorn-dev/astro-nano)
+```bash
+npm install
+npm run dev      # dev server at localhost:4321
+npm run build    # astro check + astro build
+npm run lint     # eslint
+```
 
-## 📋 Features
+## Adding content
 
-- ✅ 100/100 Lighthouse performance
-- ✅ Responsive
-- ✅ Accessible
-- ✅ SEO-friendly
-- ✅ Typesafe
-- ✅ Minimal style
-- ✅ Light/Dark Theme
-- ✅ Animated UI
-- ✅ Tailwind styling
-- ✅ Auto generated sitemap
-- ✅ Auto generated RSS Feed
-- ✅ Markdown support
-- ✅ MDX Support (components in your markdown)
+Content lives in `src/content/<collection>/`, one folder per entry with an `index.md` and any images alongside it. Frontmatter is validated by zod schemas in `src/content.config.ts` — the build fails if a required field is missing.
 
-## 💯 Lighthouse score
-![Astro Nano Lighthouse Score](_lighthouse.png)
+- **`blog`** — `title`, `description`, `date`, optional `draft`
+- **`projects`** — the above plus optional `demoURL`, `repoURL`
+- **`writeups`** — the above plus required `ctf` and `category`, optional `difficulty` (`Easy`/`Medium`/`Hard`/`Insane`), `points`, `solves`, `tags`
+- **`work`** — `company`, `role`, `dateStart`, `dateEnd` (flat `.md` files, no folder)
 
-## 🕊️ Lightweight
-No frameworks or added bulk
+Set `draft: true` to keep an entry out of the build.
 
-## ⚡︎ Fast
-Rendered in ~40ms on localhost
+## Deployment
 
-## 📄 Configuration
+Pushing to `main` builds and deploys to GitHub Pages via `.github/workflows/deploy.yml`.
 
-The blog posts on the demo serve as the documentation and configuration.
+## License
 
-## 💻 Commands
-
-All commands are run from the root of the project, from a terminal:
-
-Replace npm with your package manager of choice. `npm`, `pnpm`, `yarn`, `bun`, etc
-
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `npm install`             | Installs dependencies                            |
-| `npm run dev`             | Starts local dev server at `localhost:4321`      |
-| `npm run dev:network`     | Starts local dev server on local network         |
-| `npm run sync`            | Generates TypeScript types for all Astro modules.|
-| `npm run build`           | Build your production site to `./dist/`          |
-| `npm run preview`         | Preview your build locally, before deploying     |
-| `npm run preview:network` | Preview build on local network                   |
-| `npm run astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `npm run astro -- --help` | Get help using the Astro CLI                     |
-| `npm run lint`            | Run ESLint                                       |
-| `npm run lint:fix`        | Auto-fix ESLint issues                           |
-
-## 🏛️ License
-
-MIT
+MIT — see [LICENSE](LICENSE).
