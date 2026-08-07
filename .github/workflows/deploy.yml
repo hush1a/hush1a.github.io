@@ -24,18 +24,14 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
-      
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v2
-        with:
-          version: 8
-      
+          node-version: '22'
+          cache: 'npm'
+
       - name: Install dependencies
-        run: pnpm install
-      
+        run: npm ci
+
       - name: Build Astro site
-        run: pnpm build
+        run: npm run build
       
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
