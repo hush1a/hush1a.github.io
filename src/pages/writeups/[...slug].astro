@@ -50,10 +50,10 @@ const { Content } = await writeup.render();
         </span>
         {writeup.data.difficulty && (
           <span class={`px-3 py-1 rounded-full text-sm font-medium ${
-            writeup.data.difficulty === 'Easy' ? 'bg-green-500/20 text-green-300' :
-            writeup.data.difficulty === 'Medium' ? 'bg-yellow-500/20 text-yellow-300' :
-            writeup.data.difficulty === 'Hard' ? 'bg-orange-500/20 text-orange-300' :
-            'bg-red-500/20 text-red-300'
+            writeup.data.difficulty === "Easy" ? "bg-green-500/20 text-green-300" :
+            writeup.data.difficulty === "Medium" ? "bg-yellow-500/20 text-yellow-300" :
+            writeup.data.difficulty === "Hard" ? "bg-orange-500/20 text-orange-300" :
+            "bg-red-500/20 text-red-300"
           }`}>
             {writeup.data.difficulty}
           </span>
