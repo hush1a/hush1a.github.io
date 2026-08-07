@@ -3,7 +3,6 @@ import { getCollection } from "astro:content";
 import Container from "@components/Container.astro";
 import PageLayout from "@layouts/PageLayout.astro";
 import ArrowCard from "@components/ArrowCard.astro";
-import Link from "@components/Link.astro";
 import { WRITEUPS } from "@consts";
 
 const writeups = (await getCollection("writeups"))
@@ -39,7 +38,7 @@ const groupedByCTF = writeups.reduce((acc, writeup) => {
               {ctf}
             </h2>
             <div class="text-sm opacity-75">
-              {ctfWriteups.length} {ctfWriteups.length === 1 ? 'challenge' : 'challenges'}
+              {ctfWriteups.length} {ctfWriteups.length === 1 ? "challenge" : "challenges"}
             </div>
           </div>
           <ul class="space-y-4">
@@ -52,10 +51,10 @@ const groupedByCTF = writeups.reduce((acc, writeup) => {
                   </span>
                   {writeup.data.difficulty && (
                     <span class={`px-2 py-1 rounded ${
-                      writeup.data.difficulty === 'Easy' ? 'bg-green-500/20 text-green-300' :
-                      writeup.data.difficulty === 'Medium' ? 'bg-yellow-500/20 text-yellow-300' :
-                      writeup.data.difficulty === 'Hard' ? 'bg-orange-500/20 text-orange-300' :
-                      'bg-red-500/20 text-red-300'
+                      writeup.data.difficulty === "Easy" ? "bg-green-500/20 text-green-300" :
+                      writeup.data.difficulty === "Medium" ? "bg-yellow-500/20 text-yellow-300" :
+                      writeup.data.difficulty === "Hard" ? "bg-orange-500/20 text-orange-300" :
+                      "bg-red-500/20 text-red-300"
                     }`}>
                       {writeup.data.difficulty}
                     </span>
