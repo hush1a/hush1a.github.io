@@ -166,7 +166,8 @@ function toggleTheme(dark) {
       document.documentElement.classList.remove("dark");
     }
 
-  window.getComputedStyle(css).opacity;
+    // Force a reflow so the theme transition is flushed before the style is removed.
+    void window.getComputedStyle(css).opacity;
     document.head.removeChild(css);
   }
 
