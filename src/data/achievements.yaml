@@ -1,0 +1,16 @@
+# Achievements, keyed by slug. The key becomes the entry id.
+#
+# Required: title, event, date. Optional: rank, team, image, description.
+# Schema lives in src/content.config.ts.
+#
+# Example:
+#
+# arkavidia-9-finalist:
+#   title: "CTF Finalist"
+#   event: "ARKAVIDIA 9.0"
+#   date: 2025-01-04
+#   rank: "Top 10"
+#   team: "OmahTI"
+#   description: "Reached the final round of the national CTF competition."
+
+{}

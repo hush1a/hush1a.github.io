@@ -1,0 +1,15 @@
+# Certifications, keyed by slug. The key becomes the entry id.
+#
+# Add one by dropping the scan in src/data/certificates/ and appending a block
+# below. Required: name, issuer, issued, scan. Optional: expires, credentialID,
+# credentialURL. Schema lives in src/content.config.ts and the build fails if a
+# required field is missing or a scan path doesn't resolve.
+#
+# Commit scans at roughly 1200px on the long edge — Astro re-encodes to webp,
+# but it can't shrink a 5MB phone photo that's now in git history forever.
+
+google_cybersecurity_certificate:
+  name: "Google Cybersecurity Certificate"
+  issuer: "Coursera"
+  issued: 2025-02-15
+  scan: "./certificates/google_cybersecurity_certificate.png"

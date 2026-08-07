@@ -1,5 +1,5 @@
 import { defineCollection, z } from "astro:content";
-import { glob } from "astro/loaders";
+import { file, glob } from "astro/loaders";
 
 const blog = defineCollection({
   loader: glob({ pattern: "**/*.{md,mdx}", base: "./src/content/blog" }),
@@ -49,4 +49,33 @@ const writeups = defineCollection({
   }),
 });
 
-export const collections = { blog, work, projects, writeups };
+// Data-file collections. The object form of the YAML (keyed by slug) is
+// deliberate: with an array, any entry missing an `id` is silently skipped
+// while the build still succeeds.
+const certifications = defineCollection({
+  loader: file("src/data/certifications.yaml"),
+  schema: ({ image }) => z.object({
+    name: z.string(),
+    issuer: z.string(),
+    issued: z.coerce.date(),
+    expires: z.coerce.date().optional(),
+    scan: image(),
+    credentialID: z.string().optional(),
+    credentialURL: z.url().optional(),
+  }),
+});
+
+const achievements = defineCollection({
+  loader: file("src/data/achievements.yaml"),
+  schema: ({ image }) => z.object({
+    title: z.string(),
+    event: z.string(),
+    date: z.coerce.date(),
+    rank: z.string().optional(),
+    team: z.string().optional(),
+    image: image().optional(),
+    description: z.string().optional(),
+  }),
+});
+
+export const collections = { blog, work, projects, writeups, certifications, achievements };

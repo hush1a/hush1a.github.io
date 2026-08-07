@@ -33,6 +33,11 @@ export const WRITEUPS: Metadata = {
   DESCRIPTION: "CTF challenge solutions and writeups.",
 };
 
+export const CERTIFICATIONS: Metadata = {
+  TITLE: "Certifications",
+  DESCRIPTION: "Certifications I have earned and achievements along the way.",
+};
+
 export const SOCIALS: Socials = [
   {
     NAME: "GitHub",
