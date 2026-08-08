@@ -97,15 +97,15 @@ const now = new Date();
         ) : (
           <ul class="flex flex-col gap-6">
             {achievements.map(item => (
-              <li class="animate flex flex-wrap items-start gap-4">
+              <li class="animate flex flex-col sm:flex-row sm:items-start gap-4">
                 {item.data.image && (
-                  <div class="rounded-lg border border-black/15 dark:border-white/20 bg-white dark:bg-stone-200 p-2 shrink-0">
+                  <div class="w-full max-w-xs sm:w-64 sm:max-w-none shrink-0 rounded-lg border border-black/15 dark:border-white/20 bg-white dark:bg-stone-200 p-2">
                     <Image
                       src={item.data.image}
                       alt={`${item.data.title} — ${item.data.event}`}
-                      widths={[120, 240]}
-                      sizes="120px"
-                      class="w-24 h-24 object-contain"
+                      widths={[320, 512, 640]}
+                      sizes="(min-width: 640px) 256px, 320px"
+                      class="w-full aspect-3/2 object-contain"
                     />
                   </div>
                 )}

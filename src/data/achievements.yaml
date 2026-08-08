@@ -13,4 +13,20 @@
 #   team: "OmahTI"
 #   description: "Reached the final round of the national CTF competition."
 
-{}
+healthkathon:
+    title: "Finalist of Security Category"
+    event: "BPJS Healthkathon 2025"
+    date: 2025-11-10
+    image: "./certificates/healthkathon.png"
+
+findit:
+    title: "Finalist of Capture The Flag"
+    event: "FindIT! 2026 UGM"
+    date: 2026-05-20
+    image: "./certificates/findit.png"
+
+techcomfest:
+    title: "Finalist of Capture The Flag"
+    event: "TECHCOMFEST 2026 PNS"
+    date: 2026-01-10
+    image: "./certificates/techcomfest.png"
