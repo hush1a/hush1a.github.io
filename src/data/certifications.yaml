@@ -15,7 +15,7 @@ google_cybersecurity_certificate:
   scan: "./certificates/google-cybersecurity.png"
 
 dicoding_aws:
-  name: "Cloud Practitioner Essentials"
+  name: "AWS Cloud Practitioner Essentials"
   issuer: "Dicoding Indonesia"
   issued: 2024-12-20
   scan: "./certificates/dicoding-aws.png"

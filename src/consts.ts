@@ -67,8 +67,4 @@ export const SKILLS: Skills = [
     LABEL: "Tools",
     ITEMS: ["Git/GitHub", "Postman", "VS Code", "LaTeX", "Google Workspace", "Excel"],
   },
-  {
-    LABEL: "Spoken Languages",
-    ITEMS: ["Indonesian (native)", "English (fluent)", "Mandarin (basic)"],
-  },
 ];
