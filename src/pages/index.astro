@@ -6,6 +6,7 @@ import ArrowCard from "@components/ArrowCard.astro";
 import Link from "@components/Link.astro";
 import SocialLinks from "@components/SocialLinks.astro";
 import TerminalCard from "@components/TerminalCard.astro";
+import SkillsGrid from "@components/SkillsGrid.astro";
 import { dateRange } from "@lib/utils";
 import { SITE, HOME } from "@consts";
 
@@ -85,6 +86,27 @@ const work = await Promise.all(
       <div class="animate hidden lg:block lg:w-96">
         <TerminalCard writeups={writeups.map(writeup => writeup.id)} />
       </div>
+    </section>
+
+    <section class="animate space-y-6 py-12">
+      <h5 class="font-semibold text-black dark:text-white">
+        About me
+      </h5>
+      <!-- Neutral hairline rule matches the structural language used by the
+           hero's credibility strip; the orange drop cap is the single accent. -->
+      <article class="border-l border-black/15 dark:border-white/15 pl-6 sm:pl-8">
+        <p
+          class="text-base sm:text-lg leading-relaxed
+                 first-letter:float-left first-letter:mr-3 first-letter:mt-1
+                 first-letter:font-serif first-letter:text-4xl
+                 first-letter:leading-none first-letter:text-orange-600
+                 dark:first-letter:text-orange-300"
+        >
+          Computer Science undergraduate at Universitas Gadjah Mada with backend experience in Python/FastAPI, Node.js/Express, PostgreSQL, and Redis, plus cloud deployment via Docker, Terraform, and Azure. National CTF finalist and active hackathon participant, currently deepening in system design, cloud computing, and blue teaming. Consulting and product management background alongside the technical work.
+        </p>
+      </article>
+
+      <SkillsGrid />
     </section>
 
     {writeups.length > 0 && (

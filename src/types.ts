@@ -16,3 +16,8 @@ export type Socials = {
   NAME: string;
   HREF: string;
 }[];
+
+export type Skills = {
+  LABEL: string;
+  ITEMS: string[];
+}[];

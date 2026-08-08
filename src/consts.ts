@@ -1,4 +1,4 @@
-import type { Site, Metadata, Socials } from "@types";
+import type { Site, Metadata, Socials, Skills } from "@types";
 
 export const SITE: Site = {
   NAME: "hush's blog",
@@ -44,8 +44,31 @@ export const SOCIALS: Socials = [
     NAME: "GitHub",
     HREF: "https://github.com/hush1a"
   },
-  { 
+  {
     NAME: "LinkedIn",
     HREF: "https://www.linkedin.com/in/bayu-putra-ibana-a734a5322",
   }
+];
+
+export const SKILLS: Skills = [
+  {
+    LABEL: "Languages",
+    ITEMS: ["Python", "JavaScript/TypeScript", "C++", "Swift", "SQL"],
+  },
+  {
+    LABEL: "Frameworks & Libraries",
+    ITEMS: ["React", "Tailwind CSS", "Node.js/Express", "FastAPI", "SwiftUI", "scikit-learn", "pandas"],
+  },
+  {
+    LABEL: "Databases & Infrastructure",
+    ITEMS: ["PostgreSQL", "Redis", "Docker", "Terraform", "Microsoft Azure", "Linux"],
+  },
+  {
+    LABEL: "Tools",
+    ITEMS: ["Git/GitHub", "Postman", "VS Code", "LaTeX", "Google Workspace", "Excel"],
+  },
+  {
+    LABEL: "Spoken Languages",
+    ITEMS: ["Indonesian (native)", "English (fluent)", "Mandarin (basic)"],
+  },
 ];

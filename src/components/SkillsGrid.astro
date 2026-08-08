@@ -1,0 +1,64 @@
+---
+import { SKILLS } from "@consts";
+---
+
+<!-- A single `.animate` on the container: the global reveal staggers every
+     `.animate` element by index * 150ms, so five separate ones would delay
+     every section below by ~750ms. The per-card stagger is done in CSS below,
+     keyed off the `.show` class the reveal adds. -->
+<div class="animate grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+  {SKILLS.map(group => (
+    <div class="skill-card rounded-lg border border-black/15 dark:border-white/20 p-4 space-y-3">
+      <h6 class="text-xs uppercase tracking-wider opacity-60">
+        {group.LABEL}
+      </h6>
+      <ul class="flex flex-wrap gap-1.5">
+        {group.ITEMS.map(item => (
+          <li class="font-mono text-xs px-2 py-1 rounded-sm bg-black/5 dark:bg-white/10 text-black/70 dark:text-white/70">
+            {item}
+          </li>
+        ))}
+      </ul>
+    </div>
+  ))}
+</div>
+
+<style>
+  .skill-card {
+    transition:
+      border-color 300ms ease-in-out,
+      transform 300ms ease-out;
+  }
+
+  .skill-card:hover {
+    transform: translateY(-2px);
+    border-color: color-mix(in oklab, currentColor 30%, transparent);
+  }
+
+  /* Base state is the finished state, so a card can never be stranded
+     invisible if the reveal script does not run.
+     `backwards` (not `both`): it holds the start state through the stagger
+     delay, then releases the animated properties on completion. With `both`
+     the forwards fill would keep `transform: translateY(0)` applied and
+     silently override the hover lift, since animations beat normal rules. */
+  :global(.animate.show) .skill-card {
+    animation: skill-in 0.45s ease-out backwards;
+  }
+
+  :global(.animate.show) .skill-card:nth-child(1) { animation-delay: 0ms; }
+  :global(.animate.show) .skill-card:nth-child(2) { animation-delay: 70ms; }
+  :global(.animate.show) .skill-card:nth-child(3) { animation-delay: 140ms; }
+  :global(.animate.show) .skill-card:nth-child(4) { animation-delay: 210ms; }
+  :global(.animate.show) .skill-card:nth-child(5) { animation-delay: 280ms; }
+
+  @keyframes skill-in {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+</style>
