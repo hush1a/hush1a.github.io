@@ -1,0 +1,139 @@
+---
+// Decorative hero panel. Its `ls writeups/` output is generated from the
+// content collection at build time, so it stays true as writeups are added.
+// aria-hidden because the same writeup names are listed in the "Recent
+// writeups" section below — exposing them twice adds nothing for a screen
+// reader.
+type Props = {
+  writeups: string[];
+};
+
+const { writeups } = Astro.props;
+
+// Show the top-level directory for each writeup, deduped: a nested id like
+// "arkavidia-90/reverse-engineering" lists as "arkavidia-90/".
+const dirs = [...new Set(writeups.map(id => id.split("/")[0]))];
+---
+
+<div class="perspective-distant" aria-hidden="true">
+  <div class="term-card rounded-lg border border-black/15 dark:border-white/20 bg-black/2 dark:bg-white/2 overflow-hidden">
+    <!-- Title bar -->
+    <div class="flex items-center gap-2 px-4 py-2.5 border-b border-black/15 dark:border-white/20">
+      <span class="size-2.5 rounded-full bg-black/15 dark:bg-white/20"></span>
+      <span class="size-2.5 rounded-full bg-black/15 dark:bg-white/20"></span>
+      <span class="size-2.5 rounded-full bg-black/15 dark:bg-white/20"></span>
+      <span class="ml-2 font-mono text-xs opacity-60">hush@root: ~</span>
+    </div>
+
+    <!-- Body -->
+    <div class="px-4 py-4 font-mono text-sm space-y-3">
+      <div>
+        <div>
+          <span class="text-orange-600 dark:text-orange-300">$</span>
+          <span class="term-cmd term-cmd-1">whoami</span>
+        </div>
+        <div class="term-out term-out-1 text-black dark:text-white">hush</div>
+      </div>
+
+      <div>
+        <div>
+          <span class="text-orange-600 dark:text-orange-300">$</span>
+          <span class="term-cmd term-cmd-2">ls writeups/</span>
+        </div>
+        <div class="term-out term-out-2 flex flex-wrap gap-x-4 text-black dark:text-white">
+          {dirs.map(dir => <span>{dir}/</span>)}
+        </div>
+      </div>
+
+      <div class="term-out term-prompt">
+        <span class="text-orange-600 dark:text-orange-300">$</span>
+        <span class="term-cursor inline-block w-2 h-4 align-text-bottom bg-black/50 dark:bg-white/75"></span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  /* Animate `transform` directly rather than Tailwind's rotate-y utility:
+     --tw-rotate-y is registered with syntax "*", which does not interpolate,
+     so a utility-based hover transition would snap instead of glide. */
+  .term-card {
+    transform: rotateY(-6deg);
+    transform-style: preserve-3d;
+    transition: transform 500ms ease-out;
+  }
+
+  .term-card:hover {
+    transform: rotateY(0deg);
+  }
+
+  .term-cmd {
+    display: inline-block;
+    white-space: nowrap;
+    overflow: hidden;
+    vertical-align: bottom;
+  }
+
+  /* Base states are the finished states, so nothing can be permanently
+     hidden if the reveal script never runs. The sequence is keyed off the
+     `.show` class the scroll-reveal adds, so it starts when the card
+     actually appears rather than at an arbitrary page-load offset. */
+  /* Widths are in `ch`, which is exact in a monospace face: "whoami" is 6
+     characters, "ls writeups/" is 12. A percentage would size against the
+     parent, not the text. */
+  :global(.animate.show) .term-cmd-1 {
+    --term-width: 6ch;
+    animation: term-type 0.4s steps(6) 0.15s both;
+  }
+
+  :global(.animate.show) .term-cmd-2 {
+    --term-width: 12ch;
+    animation: term-type 0.6s steps(12) 0.95s both;
+  }
+
+  :global(.animate.show) .term-out-1 {
+    animation: term-fade 0.25s ease-out 0.6s both;
+  }
+
+  :global(.animate.show) .term-out-2 {
+    animation: term-fade 0.25s ease-out 1.6s both;
+  }
+
+  :global(.animate.show) .term-prompt {
+    animation: term-fade 0.2s ease-out 1.9s both;
+  }
+
+  :global(.animate.show) .term-cursor {
+    animation: term-blink 1.1s step-end 2.1s infinite;
+  }
+
+  @keyframes term-type {
+    from {
+      width: 0;
+    }
+    to {
+      width: var(--term-width);
+    }
+  }
+
+  @keyframes term-fade {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  /* Ends on the visible frame so the clamped duration under reduced motion
+     leaves the cursor showing rather than blanked. */
+  @keyframes term-blink {
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0;
+    }
+  }
+</style>

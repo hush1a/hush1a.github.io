@@ -14,7 +14,15 @@ function walk(dir, ext, out = []) {
 }
 
 const html = walk("dist", ".html");
-const css = walk("dist", ".css").map(f => readFileSync(f, "utf8")).join("\n");
+
+// Astro inlines small component <style> blocks into the page rather than
+// emitting a .css file, so scoped component styles must be collected from the
+// HTML too — otherwise every scoped class reads as a false positive.
+const externalCss = walk("dist", ".css").map(f => readFileSync(f, "utf8"));
+const inlineCss = html.flatMap(f =>
+  [...readFileSync(f, "utf8").matchAll(/<style[^>]*>([\s\S]*?)<\/style>/g)].map(m => m[1]),
+);
+const css = [...externalCss, ...inlineCss].join("\n");
 
 const used = new Set();
 for (const file of html) {
