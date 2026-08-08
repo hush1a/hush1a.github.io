@@ -13,3 +13,21 @@ google_cybersecurity_certificate:
   issuer: "Coursera"
   issued: 2025-02-15
   scan: "./certificates/google-cybersecurity.png"
+
+dicoding_aws:
+  name: "Cloud Practitioner Essentials"
+  issuer: "Dicoding Indonesia"
+  issued: 2024-12-20
+  scan: "./certificates/dicoding-aws.png"
+
+dicoding_js:
+  name: "Belajar Dasar Pemrograman JavaScript"
+  issuer: "Dicoding Indonesia"
+  issued: 2024-12-24
+  scan: "./certificates/dicoding-js.png"
+
+dicoding_be:
+  name: "Belajar Back-End Pemula dengan JavaScript"
+  issuer: "Dicoding Indonesia"
+  issued: 2024-12-29
+  scan: "./certificates/dicoding-be-js.png"

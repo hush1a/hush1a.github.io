@@ -4,8 +4,14 @@ import Container from "@components/Container.astro";
 import PageLayout from "@layouts/PageLayout.astro";
 import ArrowCard from "@components/ArrowCard.astro";
 import Link from "@components/Link.astro";
+import SocialLinks from "@components/SocialLinks.astro";
 import { dateRange } from "@lib/utils";
-import { SITE, HOME, SOCIALS } from "@consts";
+import { SITE, HOME } from "@consts";
+
+const writeups = (await getCollection("writeups"))
+  .filter(writeup => !writeup.data.draft)
+  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
+  .slice(0,SITE.NUM_WRITEUPS_ON_HOMEPAGE);
 
 const blog = (await getCollection("blog"))
   .filter(post => !post.data.draft)
@@ -27,16 +33,6 @@ const work = await Promise.all(
     return { ...item, Content };
   })
 );
-
-// Helper function to get icon path for social
-const getSocialIcon = (name: string) => {
-  if (name === "GitHub") {
-    return "/icons/github.svg";
-  } else if (name === "LinkedIn") {
-    return "/icons/linkedin.svg";
-  } 
-  return "";
-};
 ---
 
 <PageLayout title={HOME.TITLE} description={HOME.DESCRIPTION}>
@@ -44,63 +40,66 @@ const getSocialIcon = (name: string) => {
     <!-- Hero Section -->
     <section class="py-20 md:py-32">
       <div class="space-y-8 max-w-3xl">
-        <h1 class="animate font-sans text-6xl text-gray-50 font-bold">
-          Hello, I'm <span class="text-orange-300">hush</span>.
+        <h1 class="animate font-sans text-4xl sm:text-6xl text-black dark:text-white font-bold">
+          Hello, I'm <span class="text-orange-600 dark:text-orange-300">hush</span>.
         </h1>
-        
-        <article class="animate font-sans text-gray-50 font-light">
+
+        <article class="animate font-sans font-light">
           <p>
             Welcome to my page. Projects, experiments, notes, and writeups on cybersecurity + software engineering. Currently learning blue teaming and defensive security.
           </p>
         </article>
 
         <!-- Credibility Strip -->
-        <article class="animate space-y-4 py-6 border-y border-black/15 dark:border-white/15">
-          <p class="flex items-start gap-3">
-            <span class="text-purple-500">🎓</span>
-            <span><span class="font-semibold">CS Undergraduate</span> @ Universitas Gadjah Mada</span>
-          </p>
-          
-          <p class="flex items-start gap-3">
-            <span class="text-purple-500">🛠️</span>
-            <span><span class="font-semibold">Built projects in:</span> Web Security • APIs • Automation</span>
-          </p>
-          
-          <p class="flex items-start gap-3">
-            <span class="text-purple-500">💡</span>
-            <span><span class="font-semibold">CTF Player:</span> cybersecurity for OmahTI UGM & KOMATIK</span>
-          </p>
-        </article>
+        <dl class="animate space-y-4 py-6 border-y border-black/15 dark:border-white/15">
+          <div class="sm:flex sm:gap-6">
+            <dt class="text-xs uppercase tracking-wider opacity-60 sm:w-28 sm:shrink-0 sm:pt-0.5">
+              Education
+            </dt>
+            <dd>CS Undergraduate @ Universitas Gadjah Mada</dd>
+          </div>
 
-        <!-- Social CTAs -->
-        <div class="animate flex flex-wrap gap-3">
-          {SOCIALS.map(SOCIAL => (
-            <a 
-              href={SOCIAL.HREF}
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label={`${SITE.NAME} on ${SOCIAL.NAME}`}
-              class="group px-6 py-3 rounded-full bg-white/5 backdrop-blur-xs border border-white/10 hover:bg-white/10 hover:border-white/20 transition-all duration-300 flex items-center gap-2"
-            >
-              <img 
-                src={getSocialIcon(SOCIAL.NAME)} 
-                alt={SOCIAL.NAME}
-                class="w-5 h-5 group-hover:scale-110 transition-transform duration-300"
-              />
-              <span class="underline">{SOCIAL.NAME}</span>
-            </a>
-          ))}
-          <a 
-            href={`mailto:${SITE.EMAIL}`}
-            aria-label={`Email ${SITE.NAME}`}
-            class="group px-6 py-3 rounded-full bg-linear-to-r from-purple-500/20 to-pink-500/20 backdrop-blur-xs border border-purple-500/30 hover:from-purple-500/30 hover:to-pink-500/30 hover:border-purple-500/50 transition-all duration-300 flex items-center gap-2"
-          >
-            <span class="group-hover:scale-110 transition-transform duration-300">👋</span>
-            <span class="font-bold">Email Me!</span>
-          </a>
+          <div class="sm:flex sm:gap-6">
+            <dt class="text-xs uppercase tracking-wider opacity-60 sm:w-28 sm:shrink-0 sm:pt-0.5">
+              Focus
+            </dt>
+            <dd>Web Security &middot; APIs &middot; Automation</dd>
+          </div>
+
+          <div class="sm:flex sm:gap-6">
+            <dt class="text-xs uppercase tracking-wider opacity-60 sm:w-28 sm:shrink-0 sm:pt-0.5">
+              CTF
+            </dt>
+            <dd>OmahTI UGM &amp; KOMATIK</dd>
+          </div>
+        </dl>
+
+        <!-- Social links -->
+        <div class="animate">
+          <SocialLinks />
         </div>
       </div>
     </section>
+
+    {writeups.length > 0 && (
+      <section class="animate space-y-6 py-12">
+        <div class="flex flex-wrap gap-y-2 items-center justify-between">
+          <h5 class="font-semibold text-black dark:text-white">
+            Recent writeups
+          </h5>
+          <Link href="/writeups">
+            See all writeups
+          </Link>
+        </div>
+        <ul class="flex flex-col gap-4">
+          {writeups.map(writeup => (
+            <li>
+              <ArrowCard entry={writeup} />
+            </li>
+          ))}
+        </ul>
+      </section>
+    )}
 
     {blog.length > 0 && (
       <section class="animate space-y-6 py-12">
