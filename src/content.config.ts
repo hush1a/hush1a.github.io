@@ -23,13 +23,16 @@ const work = defineCollection({
 
 const projects = defineCollection({
   loader: glob({ pattern: "**/*.{md,mdx}", base: "./src/content/projects" }),
-  schema: z.object({
+  schema: ({ image }) => z.object({
     title: z.string(),
     description: z.string(),
     date: z.coerce.date(),
     draft: z.boolean().optional(),
     demoURL: z.string().optional(),
-    repoURL: z.string().optional()
+    repoURL: z.string().optional(),
+    // Screenshot colocated in the entry folder (`image: "./cover.png"`).
+    // Optional: the showcase falls back to a generated cover without one.
+    image: image().optional(),
   }),
 });
 

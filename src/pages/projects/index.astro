@@ -1,13 +1,35 @@
 ---
 import { getCollection } from "astro:content";
+import { getImage } from "astro:assets";
 import PageLayout from "@layouts/PageLayout.astro";
 import Container from "@components/Container.astro";
-import ArrowCard from "@components/ArrowCard.astro";
+import ProjectShowcase, { type ShowcaseProject } from "@components/ProjectShowcase";
 import { PROJECTS } from "@consts";
 
 const projects = (await getCollection("projects"))
   .filter(project => !project.data.draft)
   .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+
+// Flatten entries to plain serialisable props for the React island: the
+// markdown body as pre-rendered HTML, and screenshots resized at build time.
+const showcase: ShowcaseProject[] = await Promise.all(
+  projects.map(async project => {
+    const { title, description, date, image, demoURL, repoURL } = project.data;
+    const cover = image && await getImage({ src: image, width: 1600, format: "webp" });
+    return {
+      id: project.id,
+      title,
+      description,
+      year: date.getFullYear(),
+      html: project.rendered?.html ?? "",
+      image: cover
+        ? { src: cover.src, width: Number(cover.attributes.width), height: Number(cover.attributes.height) }
+        : undefined,
+      demoURL,
+      repoURL,
+    };
+  })
+);
 ---
 
 <PageLayout title={PROJECTS.TITLE} description={PROJECTS.DESCRIPTION}>
@@ -16,20 +38,15 @@ const projects = (await getCollection("projects"))
       <div class="animate font-semibold text-black dark:text-white">
         Projects
       </div>
-      {projects.length === 0 && (
+      {showcase.length === 0 ? (
         <p class="animate text-sm opacity-75">
           No projects listed yet.
         </p>
+      ) : (
+        <div class="animate">
+          <ProjectShowcase client:load projects={showcase} />
+        </div>
       )}
-      <ul class="animate flex flex-col gap-4">
-        {
-          projects.map((project) => (
-            <li>
-              <ArrowCard entry={project}/>
-            </li>
-          ))
-        }
-      </ul>
     </div>
   </Container>
 </PageLayout>

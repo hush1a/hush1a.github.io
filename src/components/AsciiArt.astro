@@ -18,26 +18,13 @@ const { class: className } = Astro.props;
   class:list={["ascii-art", className]}
   src="/ascii/hero.mp4"
   poster="/ascii/hero-poster.webp"
-  data-ascii-art
+  autoplay
   loop
   muted
   playsinline
-  preload="metadata"
   aria-hidden="true"
   tabindex="-1"
 ></video>
-
-<script>
-  // Started from script rather than `autoplay` so reduced-motion users get
-  // the static poster frame. Runs on every page-load because ClientRouter
-  // swaps the page without re-executing module scripts.
-  document.addEventListener("astro:page-load", () => {
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    document.querySelectorAll<HTMLVideoElement>("[data-ascii-art]").forEach(video => {
-      video.play().catch(() => {});
-    });
-  });
-</script>
 
 <style>
   .ascii-art {

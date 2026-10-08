@@ -13,7 +13,7 @@ Run in order and stop at the first failure:
 
 1. `npm run lint` — ESLint (double quotes, required semicolons).
 2. `npm run build` — `astro check` then `astro build`. Type/schema errors fail here.
-3. `node scripts/check-css-coverage.mjs` — checks that every class in the built HTML has a CSS rule. **Baseline is 9 uncovered classes** (Shiki + markdown-footnote classes, plus `font-base`). Anything above 9 is a regression; report the new class names.
+3. `node scripts/check-css-coverage.mjs` — checks that every class in the built HTML has a CSS rule. **Baseline is 3 uncovered classes** (`astro-code`, `github-dark`, `font-base`). Anything above 3 is a regression; report the new class names.
 4. Sanity checks on `dist/`:
    - `test -f dist/.nojekyll` — without it GitHub Pages drops `_astro/` and the site ships unstyled.
    - No drafts leaked: for each content file with `draft: true`, confirm its route is absent from `dist/`.

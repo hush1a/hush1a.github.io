@@ -1,0 +1,77 @@
+---
+// Achievement cards: equal-size GradientCards in a uniform grid, mirroring
+// the certification cards above them on the page: the full certificate on
+// its own surface, details underneath in the same type styles.
+import type { CollectionEntry } from "astro:content";
+import { Image } from "astro:assets";
+import GradientCard from "@components/GradientCard.astro";
+import { formatDate } from "@lib/utils";
+
+type Props = {
+  items: CollectionEntry<"achievements">[];
+};
+
+const { items } = Astro.props;
+---
+
+<ul class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+  {items.map(item => (
+    <li class="animate">
+      <GradientCard class="group h-full p-3">
+        <div class="space-y-4">
+          {/* object-contain so the whole certificate shows; the ratios vary
+              slightly (3:2 vs A4 landscape), so a shared aspect box keeps
+              every card the same height. */}
+          <div class="aspect-3/2 overflow-hidden rounded-lg border border-black/15 dark:border-white/20 bg-white dark:bg-stone-200 p-2">
+            {item.data.image ? (
+              <Image
+                src={item.data.image}
+                alt={`${item.data.title} — ${item.data.event}`}
+                widths={[400, 600, 900]}
+                sizes="(min-width: 1024px) 400px, (min-width: 768px) 50vw, 100vw"
+                class="size-full object-contain transition-transform duration-500 ease-out group-hover:scale-[1.03]"
+              />
+            ) : (
+              <div
+                class="size-full text-black/20"
+                style="background-image: radial-gradient(circle at 1px 1px, currentColor 1px, transparent 0); background-size: 14px 14px;"
+                aria-hidden="true"
+              ></div>
+            )}
+          </div>
+
+          <div class="space-y-1 px-1 pb-1">
+            <div class="font-semibold text-black dark:text-white">
+              {item.data.title}
+            </div>
+            <div class="text-sm opacity-75">
+              {item.data.event}
+            </div>
+            <div class="text-sm opacity-75">
+              {formatDate(item.data.date)}
+            </div>
+            {(item.data.rank || item.data.team) && (
+              <div class="flex flex-wrap gap-2 pt-1 text-sm">
+                {item.data.rank && (
+                  <span class="px-2 py-0.5 rounded-sm bg-orange-500/15 text-orange-700 dark:bg-orange-300/15 dark:text-orange-200">
+                    {item.data.rank}
+                  </span>
+                )}
+                {item.data.team && (
+                  <span class="px-2 py-0.5 rounded-sm bg-black/5 text-black/70 dark:bg-white/10 dark:text-white/70">
+                    {item.data.team}
+                  </span>
+                )}
+              </div>
+            )}
+            {item.data.description && (
+              <p class="text-sm opacity-75 pt-1">
+                {item.data.description}
+              </p>
+            )}
+          </div>
+        </div>
+      </GradientCard>
+    </li>
+  ))}
+</ul>

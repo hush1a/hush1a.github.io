@@ -1,0 +1,112 @@
+---
+// Card with a colourful glow that follows the cursor. A tiny script writes
+// the pointer position into --x / --y; two layers read them: a soft fill
+// behind the content and a brighter ring masked down to just the border.
+// Hover-only — on touch screens the card stays static.
+import { cn } from "@lib/utils";
+
+type Props = {
+  class?: string;
+};
+
+const { class: className } = Astro.props;
+---
+
+<div
+  data-gradient-card
+  class={cn(
+    "gradient-card relative isolate rounded-xl border border-black/10 dark:border-white/15",
+    "bg-linear-to-br from-white/70 to-stone-100 dark:from-white/5 dark:to-transparent",
+    className,
+  )}
+>
+  <div class="gradient-card-fill" aria-hidden="true"></div>
+  <div class="gradient-card-ring" aria-hidden="true"></div>
+  <!-- Full height and inherited corners so slotted content can fill the
+       card and clip media to its (possibly per-corner) radius. -->
+  <div class="relative h-full rounded-[inherit]">
+    <slot />
+  </div>
+</div>
+
+<script>
+  // Re-bound on every page-load because ClientRouter swaps pages without
+  // re-running module scripts. Listeners on swapped-out cards are dropped
+  // along with the old DOM.
+  document.addEventListener("astro:page-load", () => {
+    if (!window.matchMedia("(hover: hover)").matches) return;
+    document.querySelectorAll<HTMLElement>("[data-gradient-card]").forEach(card => {
+      card.addEventListener("pointermove", e => {
+        const rect = card.getBoundingClientRect();
+        card.style.setProperty("--x", `${e.clientX - rect.left}px`);
+        card.style.setProperty("--y", `${e.clientY - rect.top}px`);
+      });
+    });
+  });
+</script>
+
+<style>
+  .gradient-card {
+    --x: 50%;
+    --y: 50%;
+    --glow-a: rgb(249 115 22 / 0.22); /* orange-500 */
+    --glow-b: rgb(236 72 153 / 0.14); /* pink-500 */
+    --glow-c: rgb(139 92 246 / 0.10); /* violet-500 */
+    --ring-a: rgb(249 115 22 / 0.9);
+    --ring-b: rgb(236 72 153 / 0.6);
+  }
+
+  :global(.dark) .gradient-card {
+    --glow-a: rgb(253 186 116 / 0.22); /* orange-300 */
+    --glow-b: rgb(244 114 182 / 0.16); /* pink-400 */
+    --glow-c: rgb(167 139 250 / 0.12); /* violet-400 */
+    --ring-a: rgb(253 186 116 / 0.9);
+    --ring-b: rgb(244 114 182 / 0.6);
+  }
+
+  .gradient-card-fill,
+  .gradient-card-ring {
+    position: absolute;
+    /* -1px so the layers cover the card's own border, not sit inside it. */
+    inset: -1px;
+    border-radius: inherit;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 400ms ease-out;
+  }
+
+  .gradient-card-fill {
+    z-index: -1;
+    background: radial-gradient(
+      420px circle at var(--x) var(--y),
+      var(--glow-a),
+      var(--glow-b) 35%,
+      var(--glow-c) 55%,
+      transparent 75%
+    );
+  }
+
+  /* Same gradient, tighter and brighter, then masked so only the 1px
+     border band shows: the content-box layer is subtracted from the full
+     layer, leaving the padding ring. */
+  .gradient-card-ring {
+    padding: 1px;
+    background: radial-gradient(
+      260px circle at var(--x) var(--y),
+      var(--ring-a),
+      var(--ring-b) 40%,
+      transparent 70%
+    );
+    mask:
+      linear-gradient(#000 0 0) content-box,
+      linear-gradient(#000 0 0);
+    mask-composite: exclude;
+  }
+
+  @media (hover: hover) {
+    .gradient-card:hover .gradient-card-fill,
+    .gradient-card:hover .gradient-card-ring {
+      opacity: 1;
+    }
+  }
+</style>

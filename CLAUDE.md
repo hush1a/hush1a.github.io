@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Personal blog and portfolio for hush1a, deployed as a static site to GitHub Pages at https://hush1a.github.io. Based on the [Astro Nano](https://github.com/markhorn-dev/astro-nano) theme, with an added `writeups` collection for CTF challenge solutions.
 
-Stack: Astro 7, Tailwind CSS 4, TypeScript (`astro/tsconfigs/strict`). No React/Vue/Svelte — `.astro` components only, zero client-side framework JS.
+Stack: Astro 7, Tailwind CSS 4, TypeScript (`astro/tsconfigs/strict`). Components are `.astro` by default. React (`@astrojs/react`) plus `motion` is used for exactly one island: `ProjectShowcase.tsx` on `/projects` (`client:load`). Keep React confined to islands that genuinely need it rather than spreading it to static UI.
 
 ## Commands
 
@@ -35,7 +35,7 @@ Schemas are in `src/content.config.ts` (zod). Collections: `blog`, `work`, `proj
 - **Draft filtering is manual.** Every `getCollection()` call must chain `.filter(x => !x.data.draft)` — this includes `rss.xml.ts` and `getStaticPaths()`. Astro does not do it for you, and omitting it publishes drafts.
 - Entry ids are slugified from the file path (`writeups/ARKAVIDIA-9.0/reverse-engineering/index.md` → `/writeups/arkavidia-90/reverse-engineering/`). These are live URLs — renaming a content folder changes them.
 
-`scripts/check-css-coverage.mjs` verifies every class used in built HTML has a matching CSS rule. Run it after Tailwind changes; the expected baseline is 9 uncovered classes (Shiki and markdown-footnote classes, plus `font-base`, which is not a real utility).
+`scripts/check-css-coverage.mjs` verifies every class used in built HTML has a matching CSS rule. Run it after Tailwind changes; the expected baseline is 3 uncovered classes (`astro-code` and `github-dark` from Shiki, plus `font-base`, which is not a real utility).
 
 ## Site configuration
 
