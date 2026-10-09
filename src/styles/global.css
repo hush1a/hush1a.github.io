@@ -49,13 +49,15 @@
     @apply font-sans antialiased;
     @apply flex flex-col;
     @apply bg-stone-100 dark:bg-stone-900;
-    @apply text-black/50 dark:text-white/75;
+    /* /75 in both themes: secondary text is `opacity-75` on top of this,
+       and anything fainter drops light-mode secondary text below 4.5:1. */
+    @apply text-black/75 dark:text-white/75;
   }
 
   header {
     @apply fixed top-0 left-0 right-0 z-50 py-5;
-    @apply bg-stone-100/75 dark:bg-stone-900/25;
-    @apply backdrop-blur-xs saturate-200;
+    @apply bg-stone-100/70 dark:bg-stone-900/60;
+    @apply backdrop-blur-md backdrop-saturate-150;
   }
 
   main {
@@ -87,7 +89,7 @@
 
 .animate {
   @apply opacity-0 translate-y-3;
-  @apply transition-all duration-700 ease-out;
+  @apply transition-all duration-500 ease-out;
 }
 
 .animate.show {
@@ -109,6 +111,53 @@
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
+}
+
+/* Scroll edge: once content is passing under the translucent header, a short
+   fade below it separates the two instead of a hard divider line. */
+header::after {
+  content: "";
+  position: absolute;
+  inset: 100% 0 auto;
+  height: 1.25rem;
+  pointer-events: none;
+  background: linear-gradient(to bottom, color-mix(in oklab, var(--color-stone-100) 70%, transparent), transparent);
+  opacity: 0;
+  transition: opacity 300ms ease-out;
+}
+
+.dark header::after {
+  background: linear-gradient(to bottom, color-mix(in oklab, var(--color-stone-900) 60%, transparent), transparent);
+}
+
+html.scrolled header::after {
+  opacity: 1;
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  header {
+    background-color: var(--color-stone-100);
+    backdrop-filter: none;
+  }
+
+  .dark header {
+    background-color: var(--color-stone-900);
+  }
+}
+
+/* Instant press feedback for clickable surfaces (cards, buttons). The press
+   is fast; colour changes keep the site's usual 300ms. Unlayered, so it
+   wins over any transition utility on the same element. */
+.pressable {
+  transition:
+    color 300ms ease-in-out,
+    background-color 300ms ease-in-out,
+    border-color 300ms ease-in-out,
+    scale 120ms ease-out;
+}
+
+.pressable:active {
+  scale: 0.98;
 }
 
 html #back-to-top {

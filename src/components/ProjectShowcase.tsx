@@ -167,7 +167,7 @@ function Gallery({
                 className="group w-full flex items-center gap-4 sm:gap-6 py-6 text-left cursor-pointer outline-offset-4 transition-opacity duration-300"
                 style={{ opacity: dimmed ? 0.35 : 1 }}
               >
-                <span className="font-mono text-xs opacity-60 w-6 shrink-0">
+                <span className="font-mono text-xs opacity-75 w-6 shrink-0">
                   {String(i + 1).padStart(2, "0")}
                 </span>
 
@@ -185,7 +185,7 @@ function Gallery({
                   </span>
                 </span>
 
-                <span className="hidden sm:block font-mono text-xs opacity-60 shrink-0">
+                <span className="hidden sm:block font-mono text-xs opacity-75 shrink-0">
                   {project.year}
                 </span>
 
@@ -265,11 +265,11 @@ function Detail({
           ref={backRef}
           type="button"
           onClick={onClose}
-          className="group flex items-center gap-1.5 text-sm cursor-pointer hover:text-black dark:hover:text-white transition-colors duration-300"
+          className="pressable group flex items-center gap-1.5 text-sm cursor-pointer hover:text-black dark:hover:text-white"
         >
           <span className="transition-transform duration-300 group-hover:-translate-x-1">&larr;</span>
           All projects
-          <kbd className="ml-2 font-mono text-xs opacity-50">esc</kbd>
+          <kbd className="ml-2 font-mono text-xs opacity-75">esc</kbd>
         </button>
       </motion.div>
 
@@ -282,7 +282,7 @@ function Detail({
           {project.title}
         </motion.h2>
         <motion.div {...fadeIn} className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm">
-          <span className="font-mono text-xs opacity-60">{project.year}</span>
+          <span className="font-mono text-xs opacity-75">{project.year}</span>
           {project.demoURL && <ExternalLink href={project.demoURL}>demo</ExternalLink>}
           {project.repoURL && <ExternalLink href={project.repoURL}>repo</ExternalLink>}
         </motion.div>
@@ -308,7 +308,7 @@ function Detail({
             <Cover project={project} large />
           </motion.div>
         </motion.div>
-        <motion.p {...fadeIn} className="mt-3 font-mono text-xs opacity-50 text-center" aria-hidden="true">
+        <motion.p {...fadeIn} className="mt-3 font-mono text-xs opacity-75 text-center" aria-hidden="true">
           drag the preview
         </motion.p>
       </div>
@@ -329,7 +329,7 @@ function Detail({
           <button
             type="button"
             onClick={() => onSelect(next.id, false)}
-            className="group flex items-center gap-1.5 cursor-pointer hover:text-black dark:hover:text-white transition-colors duration-300"
+            className="pressable group flex items-center gap-1.5 cursor-pointer hover:text-black dark:hover:text-white"
           >
             Next: <span className="font-semibold">{next.title}</span>
             <span className="transition-transform duration-300 group-hover:translate-x-1">&rarr;</span>

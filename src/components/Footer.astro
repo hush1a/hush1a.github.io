@@ -19,7 +19,8 @@ import BackToTop from "@components/BackToTop.astro";
         <button
           id="light-theme-button"
           aria-label="Light theme"
-          class="group size-8 flex items-center justify-center rounded-full"
+          aria-pressed="false"
+          class="pressable group size-11 flex items-center justify-center rounded-full aria-pressed:bg-black/5 dark:aria-pressed:bg-white/10 aria-pressed:text-black dark:aria-pressed:text-white"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -47,7 +48,8 @@ import BackToTop from "@components/BackToTop.astro";
         <button
           id="dark-theme-button"
           aria-label="Dark theme"
-          class="group size-8 flex items-center justify-center rounded-full"
+          aria-pressed="false"
+          class="pressable group size-11 flex items-center justify-center rounded-full aria-pressed:bg-black/5 dark:aria-pressed:bg-white/10 aria-pressed:text-black dark:aria-pressed:text-white"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -67,7 +69,8 @@ import BackToTop from "@components/BackToTop.astro";
         <button
           id="system-theme-button"
           aria-label="System theme"
-          class="group size-8 flex items-center justify-center rounded-full"
+          aria-pressed="false"
+          class="pressable group size-11 flex items-center justify-center rounded-full aria-pressed:bg-black/5 dark:aria-pressed:bg-white/10 aria-pressed:text-black dark:aria-pressed:text-white"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"

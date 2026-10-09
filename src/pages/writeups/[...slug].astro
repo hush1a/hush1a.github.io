@@ -3,7 +3,7 @@ import { type CollectionEntry, getCollection, render } from "astro:content";
 import PageLayout from "@layouts/PageLayout.astro";
 import Container from "@components/Container.astro";
 import FormattedDate from "@components/FormattedDate.astro";
-import { readingTime } from "@lib/utils";
+import { readingTime, WRITEUP_BADGE } from "@lib/utils";
 import BackToPrev from "@components/BackToPrev.astro";
 
 export async function getStaticPaths() {
@@ -38,33 +38,28 @@ const { Content } = await render(writeup);
           {readingTime(writeup.body)}
         </div>
       </div>
-      <div class="animate text-2xl font-semibold text-black dark:text-white">
+      <h1 class="animate text-2xl font-semibold tracking-tight text-black dark:text-white">
         {writeup.data.title}
-      </div>
-      <div class="animate flex flex-wrap gap-2 mt-4">
-        <span class="px-3 py-1 rounded-full bg-blue-500/20 text-blue-300 text-sm font-medium">
+      </h1>
+      <div class="animate flex flex-wrap gap-2 pt-3">
+        <span class={WRITEUP_BADGE.neutral}>
           {writeup.data.ctf}
         </span>
-        <span class="px-3 py-1 rounded-full bg-purple-500/20 text-purple-300 text-sm font-medium">
+        <span class={WRITEUP_BADGE.category}>
           {writeup.data.category}
         </span>
         {writeup.data.difficulty && (
-          <span class={`px-3 py-1 rounded-full text-sm font-medium ${
-            writeup.data.difficulty === "Easy" ? "bg-green-500/20 text-green-300" :
-            writeup.data.difficulty === "Medium" ? "bg-yellow-500/20 text-yellow-300" :
-            writeup.data.difficulty === "Hard" ? "bg-orange-500/20 text-orange-300" :
-            "bg-red-500/20 text-red-300"
-          }`}>
+          <span class={WRITEUP_BADGE.difficulty[writeup.data.difficulty]}>
             {writeup.data.difficulty}
           </span>
         )}
         {writeup.data.points && (
-          <span class="px-3 py-1 rounded-full bg-gray-500/20 text-gray-300 text-sm font-medium">
-            {writeup.data.points} points
+          <span class={WRITEUP_BADGE.points}>
+            {writeup.data.points} pts
           </span>
         )}
         {writeup.data.solves && (
-          <span class="px-3 py-1 rounded-full bg-gray-500/20 text-gray-300 text-sm font-medium">
+          <span class={WRITEUP_BADGE.neutral}>
             {writeup.data.solves} solves
           </span>
         )}

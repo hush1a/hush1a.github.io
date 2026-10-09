@@ -1,7 +1,24 @@
 ---
+import { getCollection } from "astro:content";
 import Container from "@components/Container.astro";
 import Link from "@components/Link.astro";
 import { SITE } from "@consts";
+
+// Blog is listed only once it has a published post, so the nav never leads
+// to an empty page. It reappears automatically with the first post.
+const hasPosts = (await getCollection("blog")).some(post => !post.data.draft);
+
+const NAV = [
+  ...(hasPosts ? [{ href: "/blog", label: "blog" }] : []),
+  { href: "/writeups", label: "writeups" },
+  { href: "/work", label: "work" },
+  { href: "/projects", label: "projects" },
+  { href: "/certifications", label: "certs" },
+];
+
+// Section match, so a writeup page still highlights "writeups".
+const path = Astro.url.pathname;
+const isCurrent = (href: string) => path === href || path.startsWith(`${href}/`);
 ---
 
 <header>
@@ -13,33 +30,18 @@ import { SITE } from "@consts";
         </div>
       </Link>
       <nav class="flex gap-1">
-        <Link href="/blog">
-          blog
-        </Link>
-        <span>
-          {`/`}
-        </span>
-        <Link href="/writeups">
-          writeups
-        </Link>
-        <span>
-          {`/`}
-        </span>
-        <Link href="/work">
-          work
-        </Link>
-        <span>
-          {`/`}
-        </span>
-        <Link href="/projects">
-          projects
-        </Link>
-        <span>
-          {`/`}
-        </span>
-        <Link href="/certifications">
-          certs
-        </Link>
+        {NAV.map((item, i) => (
+          <>
+            {i > 0 && <span>{`/`}</span>}
+            <Link
+              href={item.href}
+              aria-current={isCurrent(item.href) ? "page" : undefined}
+              class="aria-[current=page]:text-black dark:aria-[current=page]:text-white aria-[current=page]:decoration-black/50 dark:aria-[current=page]:decoration-white/60"
+            >
+              {item.label}
+            </Link>
+          </>
+        ))}
       </nav>
     </div>
   </Container>

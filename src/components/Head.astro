@@ -76,6 +76,9 @@ const { title, description, image } = Astro.props;
 </script>
 
 <script is:inline>
+  // Runs on first load and after every ClientRouter swap. Only per-page work
+  // belongs here: anything bound to `document` or `window` is registered
+  // once at the bottom, or it would stack up one extra listener per visit.
   function init() {
     preloadTheme();
     onScroll();
@@ -87,42 +90,24 @@ const { title, description, image } = Astro.props;
     const backToPrev = document.getElementById("back-to-prev");
     backToPrev?.addEventListener("click", () => window.history.back());
 
-    const lightThemeButton = document.getElementById("light-theme-button");
-    lightThemeButton?.addEventListener("click", () => {
-      localStorage.setItem("theme", "light");
-      toggleTheme(false);
-    });
-
-    const darkThemeButton = document.getElementById("dark-theme-button");
-    darkThemeButton?.addEventListener("click", () => {
-      localStorage.setItem("theme", "dark");
-      toggleTheme(true);
-    });
-
-    const systemThemeButton = document.getElementById("system-theme-button");
-    systemThemeButton?.addEventListener("click", () => {
-      localStorage.setItem("theme", "system");
-      toggleTheme(window.matchMedia("(prefers-color-scheme: dark)").matches);
-    });
-
-    window.matchMedia("(prefers-color-scheme: dark)")
-      .addEventListener("change", event => {
-        if (localStorage.theme === "system" || !localStorage.theme) {
-          toggleTheme(event.matches);
-        }
-      }
-    );
-
-    document.addEventListener("scroll", onScroll);
+    document.getElementById("light-theme-button")
+      ?.addEventListener("click", () => chooseTheme("light"));
+    document.getElementById("dark-theme-button")
+      ?.addEventListener("click", () => chooseTheme("dark"));
+    document.getElementById("system-theme-button")
+      ?.addEventListener("click", () => chooseTheme("system"));
   }
 
+  // The first few elements stagger in; everything after shares the last
+  // delay, so long pages don't keep content waiting (10 items at a flat
+  // 150ms each used to hold the last one back ~1.5s).
   function animate() {
     const animateElements = document.querySelectorAll(".animate");
 
     animateElements.forEach((element, index) => {
       setTimeout(() => {
         element.classList.add("show");
-      }, index * 150);
+      }, Math.min(index, 5) * 60);
     });
   }
 
@@ -142,7 +127,41 @@ const { title, description, image } = Astro.props;
     });
   }
 
-function toggleTheme(dark) {
+  function storedTheme() {
+    const theme = localStorage.theme;
+    return theme === "light" || theme === "dark" ? theme : "system";
+  }
+
+  function systemIsDark() {
+    return window.matchMedia("(prefers-color-scheme: dark)").matches;
+  }
+
+  // User-initiated switch: cross-fade instead of an instant flash between
+  // light and dark. Falls back to the instant switch without View
+  // Transitions support or under reduced motion.
+  function chooseTheme(theme) {
+    localStorage.setItem("theme", theme);
+    const dark = theme === "system" ? systemIsDark() : theme === "dark";
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    if (document.startViewTransition && !reduce) {
+      document.startViewTransition(() => toggleTheme(dark));
+    } else {
+      toggleTheme(dark);
+    }
+    markThemeButtons();
+  }
+
+  // Reflect the stored choice on the footer buttons (styled via aria-pressed).
+  function markThemeButtons() {
+    const current = storedTheme();
+    ["light", "dark", "system"].forEach(theme => {
+      document.getElementById(`${theme}-theme-button`)
+        ?.setAttribute("aria-pressed", String(theme === current));
+    });
+  }
+
+  function toggleTheme(dark) {
     const css = document.createElement("style");
 
     css.appendChild(
@@ -172,14 +191,19 @@ function toggleTheme(dark) {
   }
 
   function preloadTheme() {
-    const userTheme = localStorage.theme;
-
-    if (userTheme === "light" || userTheme === "dark") {
-      toggleTheme(userTheme === "dark");
-    } else {
-      toggleTheme(window.matchMedia("(prefers-color-scheme: dark)").matches);
-    }
+    const theme = storedTheme();
+    toggleTheme(theme === "system" ? systemIsDark() : theme === "dark");
+    markThemeButtons();
   }
+
+  // Registered once for the lifetime of the tab (see init()).
+  window.matchMedia("(prefers-color-scheme: dark)")
+    .addEventListener("change", event => {
+      if (storedTheme() === "system") {
+        toggleTheme(event.matches);
+      }
+    });
+  document.addEventListener("scroll", onScroll, { passive: true });
 
   document.addEventListener("DOMContentLoaded", () => init());
   document.addEventListener("astro:after-swap", () => init());

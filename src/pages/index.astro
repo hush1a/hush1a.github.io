@@ -48,7 +48,7 @@ const work = await Promise.all(
       <AsciiArt class="absolute inset-y-0 -inset-x-5 opacity-25 dark:opacity-40 [mask-image:radial-gradient(ellipse_70%_75%_at_60%_50%,black_25%,transparent_100%)]" />
 
       <div class="relative space-y-8 max-w-3xl">
-        <h1 class="animate font-sans text-4xl sm:text-6xl text-black dark:text-white font-bold">
+        <h1 class="animate font-sans text-4xl sm:text-6xl leading-tight tracking-tight text-black dark:text-white font-bold">
           Hello, I'm <span class="text-orange-600 dark:text-orange-300">hush</span>.
         </h1>
 
@@ -61,21 +61,21 @@ const work = await Promise.all(
         <!-- Credibility Strip -->
         <dl class="animate space-y-4 py-6 border-y border-black/15 dark:border-white/15">
           <div class="sm:flex sm:gap-6">
-            <dt class="text-xs uppercase tracking-wider opacity-60 sm:w-28 sm:shrink-0 sm:pt-0.5">
+            <dt class="text-xs uppercase tracking-wider opacity-75 sm:w-28 sm:shrink-0 sm:pt-0.5">
               Education
             </dt>
             <dd>CS Undergraduate @ Universitas Gadjah Mada</dd>
           </div>
 
           <div class="sm:flex sm:gap-6">
-            <dt class="text-xs uppercase tracking-wider opacity-60 sm:w-28 sm:shrink-0 sm:pt-0.5">
+            <dt class="text-xs uppercase tracking-wider opacity-75 sm:w-28 sm:shrink-0 sm:pt-0.5">
               Focus
             </dt>
             <dd>Web Security &middot; APIs &middot; Automation</dd>
           </div>
 
           <div class="sm:flex sm:gap-6">
-            <dt class="text-xs uppercase tracking-wider opacity-60 sm:w-28 sm:shrink-0 sm:pt-0.5">
+            <dt class="text-xs uppercase tracking-wider opacity-75 sm:w-28 sm:shrink-0 sm:pt-0.5">
               Cybersecurity 
             </dt>
             <dd>OmahTI UGM &amp; KOMATIK</dd>
@@ -95,9 +95,9 @@ const work = await Promise.all(
     </section>
 
     <section class="animate space-y-6 py-12">
-      <h5 class="font-semibold text-black dark:text-white">
+      <h2 class="font-semibold text-black dark:text-white">
         About me
-      </h5>
+      </h2>
       <article>
         <p>
           Computer Science undergraduate at Universitas Gadjah Mada with backend experience in Python/FastAPI, Node.js/Express, PostgreSQL, and Redis, plus cloud deployment via Docker, Terraform, and Azure. National CTF finalist and active hackathon participant, currently deepening in system design, cloud computing, and blue teaming. Consulting and product management background alongside the technical work.
@@ -110,9 +110,9 @@ const work = await Promise.all(
     {writeups.length > 0 && (
       <section class="animate space-y-6 py-12">
         <div class="flex flex-wrap gap-y-2 items-center justify-between">
-          <h5 class="font-semibold text-black dark:text-white">
+          <h2 class="font-semibold text-black dark:text-white">
             Recent writeups
-          </h5>
+          </h2>
           <Link href="/writeups">
             See all writeups
           </Link>
@@ -130,9 +130,9 @@ const work = await Promise.all(
     {blog.length > 0 && (
       <section class="animate space-y-6 py-12">
         <div class="flex flex-wrap gap-y-2 items-center justify-between">
-          <h5 class="font-semibold text-black dark:text-white">
+          <h2 class="font-semibold text-black dark:text-white">
             Latest posts
-          </h5>
+          </h2>
           <Link href="/blog">
             See all posts
           </Link>
@@ -150,9 +150,9 @@ const work = await Promise.all(
     {work.length > 0 && (
       <section class="animate space-y-6 py-12">
         <div class="flex flex-wrap gap-y-2 items-center justify-between">
-          <h5 class="font-semibold text-black dark:text-white">
+          <h2 class="font-semibold text-black dark:text-white">
             Work Experience
-          </h5>
+          </h2>
           <Link href="/work">
             See all work
           </Link>
@@ -181,9 +181,9 @@ const work = await Promise.all(
     {projects.length > 0 && (
       <section class="animate space-y-6 py-12">
         <div class="flex flex-wrap gap-y-2 items-center justify-between">
-          <h5 class="font-semibold text-black dark:text-white">
+          <h2 class="font-semibold text-black dark:text-white">
             Recent projects
-          </h5>
+          </h2>
           <Link href="/projects">
             See all projects
           </Link>

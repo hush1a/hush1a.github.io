@@ -33,7 +33,7 @@ for (const file of html) {
 }
 
 // A class is covered if its escaped form appears as a selector in the CSS.
-const escape = c => c.replace(/[.:/[\]()!#%,>+~*^$|@]/g, ch => "\\" + ch);
+const escape = c => c.replace(/[.:/[\]()!#%,>+~*^$|@=]/g, ch => "\\" + ch);
 const missing = [...used].filter(c => !css.includes("." + escape(c)));
 
 console.log(`html files:      ${html.length}`);
