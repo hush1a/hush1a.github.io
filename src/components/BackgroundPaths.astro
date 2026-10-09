@@ -1,0 +1,114 @@
+---
+// Decorative hero backdrop: two mirrored fans of 36 curves, from 21st.dev's
+// "Background Paths" (Framer Motion), ported to plain SVG + CSS so it ships
+// no JavaScript.
+//
+// The original animates each path's dash (pathLength / pathOffset). That
+// repaints all 72 paths every frame, and in Chrome it made the whole hero
+// and header flicker. Here the paths are drawn once and only the two fan
+// layers move, via transform and opacity, which the compositor animates
+// without repainting anything. Fills its parent; position it from outside.
+import { cn } from "@lib/utils";
+
+type Props = {
+  class?: string;
+};
+
+const { class: className } = Astro.props;
+
+const fans = [1, -1].map(position =>
+  Array.from({ length: 36 }, (_, i) => {
+    const x = (n: number) => n - i * 5 * position;
+    const y = (n: number) => n - i * 6;
+    return {
+      d: `M${-x(380)} ${-(189 + i * 6)}C${-x(380)} ${-(189 + i * 6)} ${-x(312)} ${y(216)} ${x(152)} ${y(343)}C${x(616)} ${y(470)} ${x(684)} ${y(875)} ${x(684)} ${y(875)}`,
+      width: 0.5 + i * 0.03,
+      opacity: Math.min(0.1 + i * 0.03, 1),
+    };
+  })
+);
+---
+
+<div class={cn("pointer-events-none overflow-hidden text-stone-900 dark:text-white", className)} aria-hidden="true">
+  {fans.map((paths, f) => (
+    <svg
+      class:list={["bg-fan absolute -top-[25%] -left-[25%] w-[150%] h-[150%]", f === 0 ? "bg-fan-a" : "bg-fan-b"]}
+      viewBox="0 0 696 316"
+      preserveAspectRatio="xMidYMid slice"
+      fill="none"
+    >
+      {paths.map(path => (
+        <path
+          d={path.d}
+          stroke="currentColor"
+          stroke-width={path.width}
+          stroke-opacity={path.opacity}
+        />
+      ))}
+    </svg>
+  ))}
+  {/* Edge fade as overlays in the page colour rather than a mask-image:
+      a mask over moving layers is per-frame work, a static overlay is not.
+      The linear one stops the lines ending in a hard line at the bottom. */}
+  <div class="absolute inset-0 bg-[radial-gradient(ellipse_75%_80%_at_60%_50%,transparent_30%,var(--color-stone-100)_100%)] dark:bg-[radial-gradient(ellipse_75%_80%_at_60%_50%,transparent_30%,var(--color-stone-900)_100%)]"></div>
+  <div class="absolute inset-x-0 bottom-0 h-1/4 bg-linear-to-b from-transparent to-stone-100 dark:to-stone-900"></div>
+</div>
+
+<style>
+  /* The two fans rotate in opposite directions while drifting apart and
+     back, and breathe in opacity, so they visibly shear across each other.
+     Each layer is 150% of the hero (see the markup) so rotating it never
+     brings a corner into view. Transform and opacity only: both run on the
+     compositor, so nothing is repainted per frame. */
+  .bg-fan {
+    will-change: transform, opacity;
+  }
+
+  .bg-fan-a {
+    animation: bg-fan-a 10s ease-in-out infinite alternate;
+  }
+
+  .bg-fan-b {
+    animation: bg-fan-b 13s ease-in-out infinite alternate;
+  }
+
+  @keyframes bg-fan-a {
+    from {
+      transform: translate3d(-6%, -4%, 0) rotate(-6deg);
+      opacity: 0.25;
+    }
+    to {
+      transform: translate3d(6%, 4%, 0) rotate(5deg);
+      opacity: 0.9;
+    }
+  }
+
+  @keyframes bg-fan-b {
+    from {
+      transform: translate3d(6%, 4%, 0) rotate(6deg);
+      opacity: 0.9;
+    }
+    to {
+      transform: translate3d(-6%, -4%, 0) rotate(-5deg);
+      opacity: 0.25;
+    }
+  }
+
+  /* Kept moving under reduced motion, matching the earlier decision for
+     the hero backdrop. The global reduced-motion rule forces every
+     animation to a single 0.01ms run with `!important` on `*`; these
+     selectors are more specific, so their `!important` wins. */
+  @media (prefers-reduced-motion: reduce) {
+    .bg-fan-a {
+      animation-duration: 10s !important;
+    }
+
+    .bg-fan-b {
+      animation-duration: 13s !important;
+    }
+
+    .bg-fan {
+      animation-iteration-count: infinite !important;
+    }
+  }
+</style>
