@@ -1,0 +1,267 @@
+---
+// Decorative dot field that answers taps with expanding rings. Ported from
+// 21st.dev's "SonarGrid" (a React component) to an Astro component with a
+// plain script: the original is a canvas plus a draw loop, so React added
+// nothing but bundle weight. Behaviour matches the original: two-pass dot
+// rendering, smoothstep wavefronts that fade with age, ambient pings, and a
+// loop that sleeps when no ring is alive and pauses off-screen or in hidden
+// tabs. Fills its parent; position it from the outside.
+import { cn } from "@lib/utils";
+
+type Props = {
+  class?: string;
+  /** Distance between dots in CSS pixels. */
+  spacing?: number;
+  /** Dot radius at rest, in CSS pixels. */
+  dotRadius?: number;
+  /** Resting dot opacity (0-1). Dots on a wavefront go to 1. */
+  baseOpacity?: number;
+  /** Seconds between ambient pings. 0 disables them. */
+  pingEvery?: number;
+  /** Wavefront speed in CSS pixels per second. */
+  speed?: number;
+  /** Thickness of the wavefront in CSS pixels. */
+  ringWidth?: number;
+  /** How much a dot grows at the wave peak (0 = none, 2 = triple size). */
+  amplitude?: number;
+  /** Emit a ping wherever the visitor clicks or taps on the page. */
+  interactive?: boolean;
+  /** Maximum simultaneous rings. Older rings are dropped first. */
+  maxRings?: number;
+  /** Start with one ring already mid-expansion so the first frame shows the idea. */
+  seedPing?: boolean;
+  /** Where ambient pings may spawn, as fractions of width/height: [x0, y0, x1, y1]. */
+  pingArea?: [number, number, number, number];
+};
+
+const {
+  class: className,
+  spacing = 26,
+  dotRadius = 1.4,
+  baseOpacity = 0.28,
+  pingEvery = 2.4,
+  speed = 260,
+  ringWidth = 90,
+  amplitude = 2.2,
+  interactive = true,
+  maxRings = 6,
+  seedPing = true,
+  pingArea = [0.15, 0.2, 0.85, 0.8],
+} = Astro.props;
+
+const options = { spacing, dotRadius, baseOpacity, pingEvery, speed, ringWidth, amplitude, interactive, maxRings, seedPing, pingArea };
+---
+
+<div
+  data-sonar-grid={JSON.stringify(options)}
+  class={cn("pointer-events-none overflow-hidden", className)}
+  aria-hidden="true"
+>
+  {/* The canvas reads its dot colour from this text colour, so it follows
+      the site theme. */}
+  <canvas class="absolute inset-0 size-full text-stone-900 dark:text-white"></canvas>
+</div>
+
+<script>
+  type Options = {
+    spacing: number;
+    dotRadius: number;
+    baseOpacity: number;
+    pingEvery: number;
+    speed: number;
+    ringWidth: number;
+    amplitude: number;
+    interactive: boolean;
+    maxRings: number;
+    seedPing: boolean;
+    pingArea: [number, number, number, number];
+  };
+
+  type Ring = { x: number; y: number; born: number };
+
+  const MAX_DPR = 2;
+  const TAU = Math.PI * 2;
+
+  function start(host: HTMLElement, o: Options) {
+    const canvas = host.querySelector("canvas");
+    const ctx = canvas?.getContext("2d");
+    if (!canvas || !ctx) return () => {};
+
+    let rings: Ring[] = [];
+    let width = 0;
+    let height = 0;
+    let raf = 0;
+    let timer = 0;
+    let visible = true;
+    let seeded = false;
+    let fill = "";
+    let nextPing = performance.now() + o.pingEvery * 1000;
+
+    const readColor = () => {
+      fill = getComputedStyle(canvas).color;
+    };
+
+    const addRing = (x: number, y: number, born: number) => {
+      rings.push({ x, y, born });
+      while (rings.length > o.maxRings) rings.shift();
+    };
+
+    const draw = (now: number) => {
+      const lifetime = (Math.hypot(width, height) + o.ringWidth) / o.speed; // seconds until a ring leaves the canvas
+      rings = rings.filter(r => (now - r.born) / 1000 < lifetime);
+      const live = rings.map(r => {
+        const age = (now - r.born) / 1000;
+        const radius = age * o.speed;
+        return { x: r.x, y: r.y, radius, reach: radius + o.ringWidth, fade: 1 - age / lifetime };
+      });
+
+      ctx.clearRect(0, 0, width, height);
+      ctx.fillStyle = fill;
+
+      const cols = Math.ceil(width / o.spacing) + 1;
+      const rows = Math.ceil(height / o.spacing) + 1;
+      const offsetX = (width - (cols - 1) * o.spacing) / 2;
+      const offsetY = (height - (rows - 1) * o.spacing) / 2;
+
+      // Pass 1: every resting dot in a single path and a single fill.
+      const hot: number[] = [];
+      ctx.globalAlpha = o.baseOpacity;
+      ctx.beginPath();
+      for (let i = 0; i < cols; i++) {
+        const cx = offsetX + i * o.spacing;
+        for (let j = 0; j < rows; j++) {
+          const cy = offsetY + j * o.spacing;
+          let energy = 0;
+          for (const r of live) {
+            if (Math.abs(cx - r.x) > r.reach || Math.abs(cy - r.y) > r.reach) continue;
+            const dist = Math.abs(Math.hypot(cx - r.x, cy - r.y) - r.radius);
+            if (dist >= o.ringWidth) continue;
+            const t = 1 - dist / o.ringWidth;
+            const k = t * t * (3 - 2 * t) * r.fade; // smoothstep, fading with age
+            if (k > energy) energy = k;
+          }
+          if (energy < 0.01) {
+            ctx.moveTo(cx + o.dotRadius, cy);
+            ctx.arc(cx, cy, o.dotRadius, 0, TAU);
+          } else {
+            hot.push(cx, cy, energy);
+          }
+        }
+      }
+      ctx.fill();
+
+      // Pass 2: only the dots on a wavefront get their own alpha and radius.
+      for (let k = 0; k < hot.length; k += 3) {
+        const energy = hot[k + 2];
+        ctx.globalAlpha = o.baseOpacity + (1 - o.baseOpacity) * energy;
+        ctx.beginPath();
+        ctx.arc(hot[k], hot[k + 1], o.dotRadius * (1 + o.amplitude * energy), 0, TAU);
+        ctx.fill();
+      }
+      ctx.globalAlpha = 1;
+    };
+
+    const resize = () => {
+      const rect = host.getBoundingClientRect();
+      width = Math.max(1, Math.round(rect.width));
+      height = Math.max(1, Math.round(rect.height));
+      const dpr = Math.min(window.devicePixelRatio || 1, MAX_DPR);
+      canvas.width = Math.round(width * dpr);
+      canvas.height = Math.round(height * dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      if (!seeded) {
+        // One ring already mid-expansion inside the ping area, so the first
+        // paint already shows the idea.
+        seeded = true;
+        const [x0, y0, x1, y1] = o.pingArea;
+        if (o.seedPing) addRing(width * (x0 + (x1 - x0) * 0.68), height * (y0 + (y1 - y0) * 0.34), performance.now() - 500);
+      }
+      draw(performance.now());
+    };
+
+    const scheduleIdle = (delay: number) => {
+      window.clearTimeout(timer);
+      timer = window.setTimeout(() => tick(performance.now()), Math.max(16, delay));
+    };
+
+    // Unlike the original, this keeps animating under prefers-reduced-motion,
+    // matching the site's standing decision for the homepage backdrop.
+    const tick = (now: number) => {
+      raf = 0;
+      if (!visible || document.hidden) return;
+      if (o.pingEvery > 0 && now >= nextPing) {
+        const [x0, y0, x1, y1] = o.pingArea;
+        addRing(width * (x0 + Math.random() * (x1 - x0)), height * (y0 + Math.random() * (y1 - y0)), now);
+        nextPing = now + o.pingEvery * 1000;
+      }
+      draw(now);
+      if (rings.length > 0) raf = requestAnimationFrame(tick);
+      else if (o.pingEvery > 0) scheduleIdle(nextPing - now);
+    };
+
+    const wake = () => {
+      if (!raf) {
+        window.clearTimeout(timer);
+        raf = requestAnimationFrame(tick);
+      }
+    };
+
+    // The grid sits behind the page content, so listen on the document: a
+    // click anywhere on the homepage sends a ping from that point.
+    const onDown = (e: PointerEvent) => {
+      if (!o.interactive || e.button !== 0) return;
+      const rect = host.getBoundingClientRect();
+      addRing(e.clientX - rect.left, e.clientY - rect.top, performance.now());
+      wake();
+    };
+    const onVisibility = () => {
+      if (!document.hidden) wake();
+    };
+
+    const ro = new ResizeObserver(resize);
+    const io = new IntersectionObserver(([entry]) => {
+      visible = entry?.isIntersecting ?? true;
+      if (visible) wake();
+    });
+    // Theme switches toggle the class on <html>: re-read the colour and repaint.
+    const mo = new MutationObserver(() => {
+      readColor();
+      draw(performance.now());
+    });
+
+    readColor();
+    resize();
+    ro.observe(host);
+    io.observe(host);
+    mo.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
+    document.addEventListener("pointerdown", onDown);
+    document.addEventListener("visibilitychange", onVisibility);
+    wake();
+
+    return () => {
+      ro.disconnect();
+      io.disconnect();
+      mo.disconnect();
+      document.removeEventListener("pointerdown", onDown);
+      document.removeEventListener("visibilitychange", onVisibility);
+      cancelAnimationFrame(raf);
+      window.clearTimeout(timer);
+    };
+  }
+
+  // ClientRouter swaps pages without reloading: start on each page that has
+  // a grid and tear down before leaving it.
+  let stops: (() => void)[] = [];
+  const stopAll = () => {
+    stops.forEach(stop => stop());
+    stops = [];
+  };
+
+  document.addEventListener("astro:page-load", () => {
+    stopAll();
+    document.querySelectorAll<HTMLElement>("[data-sonar-grid]").forEach(host => {
+      stops.push(start(host, JSON.parse(host.dataset.sonarGrid ?? "{}") as Options));
+    });
+  });
+  document.addEventListener("astro:before-swap", stopAll);
+</script>
