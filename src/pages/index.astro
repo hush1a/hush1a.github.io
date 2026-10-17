@@ -5,6 +5,7 @@ import PageLayout from "@layouts/PageLayout.astro";
 import ArrowCard from "@components/ArrowCard.astro";
 import Link from "@components/Link.astro";
 import SocialLinks from "@components/SocialLinks.astro";
+import AnimatedButton from "@components/AnimatedButton.astro";
 import TerminalCard from "@components/TerminalCard.astro";
 import SonarGrid from "@components/SonarGrid.astro";
 import SkillsGrid from "@components/SkillsGrid.astro";
@@ -43,45 +44,38 @@ const work = await Promise.all(
        stays put while the page scrolls over it. -->
   <SonarGrid class="fixed inset-0 -z-10 opacity-40 dark:opacity-30" pingEvery={6} />
   <Container>
-    <!-- Hero Section -->
-    <section class="relative py-20 md:py-32 grid lg:grid-cols-[minmax(0,1fr)_auto] lg:gap-16 lg:items-center">
+    <!-- Hero: heading, one-line intro, actions, and the terminal card. Sized
+         to about one screen (main already pads the top by 8rem) so About
+         starts below the fold and the backdrop gets the first view. -->
+    <section class="relative grid content-start min-h-[calc(100dvh-8rem)] pt-6 md:pt-14 pb-16 lg:grid-cols-[minmax(0,1fr)_auto] lg:gap-16 lg:items-center">
       <div class="relative space-y-8 max-w-3xl">
-        <h1 class="animate font-sans text-4xl sm:text-6xl leading-tight tracking-tight text-black dark:text-white font-bold">
+        <h1 class="animate text-4xl sm:text-6xl leading-tight tracking-tight text-black dark:text-white font-bold">
           Hello, I'm <span class="text-orange-600 dark:text-orange-300">hush</span>.
         </h1>
 
-        <article class="animate font-sans font-light">
-          <p>
-            Welcome to my page. Projects, experiments, notes, and writeups on cybersecurity + software engineering. Currently learning blue teaming and defensive security.
-          </p>
-        </article>
+        <p class="animate max-w-xl text-lg leading-relaxed">
+          CS student at UGM and national CTF finalist. I write about web security, APIs, and the blue-team side I'm learning now.
+        </p>
 
-        <!-- Credibility Strip -->
-        <dl class="animate space-y-4 py-6 border-y border-black/15 dark:border-white/15">
-          <div class="sm:flex sm:gap-6">
-            <dt class="text-xs uppercase tracking-wider opacity-75 sm:w-28 sm:shrink-0 sm:pt-0.5">
-              Education
-            </dt>
-            <dd>CS Undergraduate @ Universitas Gadjah Mada</dd>
-          </div>
-
-          <div class="sm:flex sm:gap-6">
-            <dt class="text-xs uppercase tracking-wider opacity-75 sm:w-28 sm:shrink-0 sm:pt-0.5">
-              Focus
-            </dt>
-            <dd>Web Security &middot; APIs &middot; Automation</dd>
-          </div>
-
-          <div class="sm:flex sm:gap-6">
-            <dt class="text-xs uppercase tracking-wider opacity-75 sm:w-28 sm:shrink-0 sm:pt-0.5">
-              Cybersecurity 
-            </dt>
-            <dd>OmahTI UGM &amp; KOMATIK</dd>
-          </div>
-        </dl>
-
-        <!-- Social links -->
-        <div class="animate">
+        <div class="animate flex flex-wrap items-center gap-3">
+          <AnimatedButton href="/writeups" variant="primary" size="lg">
+            Read writeups
+            <svg
+              slot="icon-right"
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+              class="transition-transform duration-200 group-hover:translate-x-0.5"
+            >
+              <line x1="5" y1="12" x2="19" y2="12" />
+              <polyline points="12 5 19 12 12 19" />
+            </svg>
+          </AnimatedButton>
           <SocialLinks />
         </div>
       </div>
@@ -101,6 +95,31 @@ const work = await Promise.all(
           Computer Science undergraduate at Universitas Gadjah Mada with backend experience in Python/FastAPI, Node.js/Express, PostgreSQL, and Redis, plus cloud deployment via Docker, Terraform, and Azure. National CTF finalist and active hackathon participant, currently deepening in system design, cloud computing, and blue teaming. Consulting and product management background alongside the technical work.
         </p>
       </article>
+
+      <!-- Quick facts, moved here from the hero to keep the first screen to
+           a single message. -->
+      <dl class="space-y-4">
+        <div class="sm:flex sm:gap-6">
+          <dt class="text-xs uppercase tracking-wider opacity-75 sm:w-28 sm:shrink-0 sm:pt-0.5">
+            Education
+          </dt>
+          <dd>CS Undergraduate @ Universitas Gadjah Mada</dd>
+        </div>
+
+        <div class="sm:flex sm:gap-6">
+          <dt class="text-xs uppercase tracking-wider opacity-75 sm:w-28 sm:shrink-0 sm:pt-0.5">
+            Focus
+          </dt>
+          <dd>Web Security &middot; APIs &middot; Automation</dd>
+        </div>
+
+        <div class="sm:flex sm:gap-6">
+          <dt class="text-xs uppercase tracking-wider opacity-75 sm:w-28 sm:shrink-0 sm:pt-0.5">
+            Cybersecurity
+          </dt>
+          <dd>OmahTI UGM &amp; KOMATIK</dd>
+        </div>
+      </dl>
 
       <SkillsGrid />
     </section>

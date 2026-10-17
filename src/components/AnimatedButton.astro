@@ -1,0 +1,157 @@
+---
+// Link styled as a button with tactile motion, adapted from 21st.dev's
+// "AnimatedButton" (React + framer-motion + cva) to plain Astro + CSS:
+// - hover: springy lift with a slight 3D tilt; press: sinks back
+// - primary: slowly drifting gradient, plus a shimmer sweep while hovered
+// - click: a ripple from the pointer position (tiny delegated script)
+// Colours follow the site (stone neutrals, black/white emphasis) rather
+// than the original's shadcn `primary` tokens, and the radius and borders
+// match the site's cards.
+import { cn } from "@lib/utils";
+
+type Props = {
+  href: string;
+  variant?: "primary" | "outline";
+  size?: "md" | "lg";
+  external?: boolean;
+  class?: string;
+};
+
+const { href, variant = "outline", size = "md", external = false, class: className } = Astro.props;
+---
+
+<a
+  href={href}
+  target={external ? "_blank" : undefined}
+  rel={external ? "noopener noreferrer" : undefined}
+  data-animated-button
+  class={cn(
+    "animated-button group relative inline-flex items-center justify-center gap-2 overflow-hidden whitespace-nowrap rounded-lg border font-medium",
+    "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-black/60 dark:focus-visible:outline-white/70",
+    "[&_svg]:pointer-events-none [&_svg]:shrink-0",
+    size === "md" && "h-10 px-4 text-sm [&_svg]:size-4",
+    size === "lg" && "h-11 px-5 text-sm [&_svg]:size-4",
+    variant === "primary" && [
+      "animated-button-primary border-black/80 text-stone-50 shadow-lg shadow-black/15 hover:shadow-xl hover:shadow-black/25",
+      "bg-linear-to-r from-stone-900 via-stone-700 to-stone-900",
+      "dark:border-white/80 dark:text-stone-900 dark:shadow-black/40 dark:hover:shadow-black/50",
+      "dark:from-stone-100 dark:via-stone-300 dark:to-stone-100",
+    ],
+    variant === "outline" && [
+      "border-black/15 bg-stone-100/60 text-black/80 shadow-sm shadow-black/5 backdrop-blur-sm",
+      "hover:border-black/30 hover:bg-white/70 hover:text-black hover:shadow-md",
+      "dark:border-white/20 dark:bg-stone-900/60 dark:text-white/80 dark:shadow-black/20",
+      "dark:hover:border-white/40 dark:hover:bg-stone-800/70 dark:hover:text-white",
+    ],
+    className,
+  )}
+>
+  {variant === "primary" && <span class="animated-button-shimmer" aria-hidden="true"></span>}
+  <span class="relative z-10 flex items-center gap-2">
+    <slot name="icon-left" />
+    <slot />
+    <slot name="icon-right" />
+  </span>
+</a>
+
+<script>
+  // Click ripple, delegated so it covers every button on every page
+  // without per-page rebinding after ClientRouter swaps.
+  document.addEventListener("pointerdown", event => {
+    const button = (event.target as Element | null)?.closest<HTMLElement>("[data-animated-button]");
+    if (!button || event.button !== 0) return;
+    const rect = button.getBoundingClientRect();
+    const ripple = document.createElement("span");
+    ripple.className = "animated-button-ripple";
+    ripple.style.left = `${event.clientX - rect.left}px`;
+    ripple.style.top = `${event.clientY - rect.top}px`;
+    ripple.addEventListener("animationend", () => ripple.remove());
+    button.appendChild(ripple);
+  });
+</script>
+
+<style>
+  /* Spring-like overshoot standing in for the original's spring
+     (stiffness 400, damping 10); the press is quicker and settles flat. */
+  .animated-button {
+    transform: perspective(600px) rotateX(0deg) scale(1);
+    transition:
+      transform 320ms cubic-bezier(0.34, 1.56, 0.64, 1),
+      box-shadow 200ms ease-out,
+      background-color 200ms ease-out,
+      border-color 200ms ease-out,
+      color 200ms ease-out;
+  }
+
+  .animated-button:hover {
+    transform: perspective(600px) rotateX(-2deg) scale(1.02);
+  }
+
+  .animated-button:active {
+    transform: perspective(600px) rotateX(2deg) scale(0.98);
+    transition-duration: 100ms;
+  }
+
+  /* Primary: the gradient drifts slowly, as in the original's gradient-x. */
+  .animated-button-primary {
+    background-size: 200% 100%;
+    animation: animated-button-gradient 6s ease-in-out infinite;
+  }
+
+  @keyframes animated-button-gradient {
+    0%,
+    100% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+  }
+
+  /* Shimmer: one 1.5s sweep, then a 3s pause, looping only while hovered. */
+  .animated-button-shimmer {
+    position: absolute;
+    inset: 0;
+    transform: translateX(-100%);
+    background: linear-gradient(90deg, transparent, rgb(255 255 255 / 0.2), transparent);
+    pointer-events: none;
+  }
+
+  :global(.dark) .animated-button-shimmer {
+    background: linear-gradient(90deg, transparent, rgb(255 255 255 / 0.7), transparent);
+  }
+
+  .animated-button:hover .animated-button-shimmer {
+    animation: animated-button-shimmer 4.5s ease-in-out infinite;
+  }
+
+  @keyframes animated-button-shimmer {
+    0% {
+      transform: translateX(-100%);
+    }
+    33%,
+    100% {
+      transform: translateX(100%);
+    }
+  }
+
+  /* Created by the script above, so it needs :global to escape scoping. */
+  :global(.animated-button-ripple) {
+    position: absolute;
+    width: 120px;
+    height: 120px;
+    border-radius: 9999px;
+    background: currentColor;
+    opacity: 0.2;
+    pointer-events: none;
+    transform: translate(-50%, -50%) scale(0);
+    animation: animated-button-ripple 600ms ease-out forwards;
+  }
+
+  @keyframes animated-button-ripple {
+    to {
+      transform: translate(-50%, -50%) scale(1);
+      opacity: 0;
+    }
+  }
+</style>

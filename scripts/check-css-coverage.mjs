@@ -28,12 +28,13 @@ const used = new Set();
 for (const file of html) {
   const content = readFileSync(file, "utf8");
   for (const m of content.matchAll(/class="([^"]*)"/g)) {
-    for (const c of m[1].split(/\s+/)) if (c) used.add(c);
+    // Class attributes are HTML-escaped (`[&_svg]` is written `[&amp;_svg]`).
+    for (const c of m[1].replaceAll("&amp;", "&").split(/\s+/)) if (c) used.add(c);
   }
 }
 
 // A class is covered if its escaped form appears as a selector in the CSS.
-const escape = c => c.replace(/[.:/[\]()!#%,>+~*^$|@=]/g, ch => "\\" + ch);
+const escape = c => c.replace(/[.:/[\]()!#%,>+~*^$|@=&]/g, ch => "\\" + ch);
 const missing = [...used].filter(c => !css.includes("." + escape(c)));
 
 console.log(`html files:      ${html.length}`);
