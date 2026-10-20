@@ -1,0 +1,175 @@
+---
+// Scrolling strip of technology logos, adapted from 21st.dev's
+// "BlurredMarquee" (React + motion + react-use-measure). The loop is a single
+// Web Animations API transform, so it runs on the compositor; the original's
+// progressive-blur edges are a static fade mask instead, since stacked
+// backdrop blurs over moving content are redrawn every frame. Hovering slows
+// the strip so names can be read (the original sped it up).
+//
+// Logos come from Simple Icons at build time, drawn in the text colour so
+// they match the site's neutral palette. Anything Simple Icons doesn't carry
+// can be dropped into src/assets/tech-logos/<key>.svg (see UPLOADS below);
+// an uploaded file also overrides a Simple Icons logo with the same key.
+import * as simpleIcons from "simple-icons";
+import { SKILLS } from "@consts";
+
+// Each skill name in @consts mapped to its logo key(s): a Simple Icons slug,
+// or an upload name. Combined entries like "Node.js/Express" show both.
+const LOGOS: Record<string, string[]> = {
+  "Python": ["python"],
+  "JavaScript/TypeScript": ["javascript", "typescript"],
+  "C++": ["cplusplus"],
+  "Swift": ["swift"],
+  "SQL": ["sql"],
+  "React": ["react"],
+  "Tailwind CSS": ["tailwindcss"],
+  "Node.js/Express": ["nodedotjs", "express"],
+  "FastAPI": ["fastapi"],
+  "scikit-learn": ["scikitlearn"],
+  "pandas": ["pandas"],
+  "PostgreSQL": ["postgresql"],
+  "Redis": ["redis"],
+  "Docker": ["docker"],
+  "Terraform": ["terraform"],
+  "Linux": ["linux"],
+  "Git/GitHub": ["git", "github"],
+  "Postman": ["postman"],
+  "VS Code": ["vscode"],
+  "LaTeX": ["latex"],
+  "Excel": ["excel"],
+};
+
+// Uploaded SVGs, keyed by file name. Rendered as a mask filled with the text
+// colour, so any upload comes out monochrome like the rest of the strip.
+const UPLOADS = Object.fromEntries(
+  Object.entries(
+    import.meta.glob<string>("/src/assets/tech-logos/*.svg", { query: "?raw", import: "default", eager: true })
+  ).map(([path, svg]) => [path.split("/").pop()!.replace(/\.svg$/, ""), svg])
+);
+
+type Logo = { kind: "path"; d: string } | { kind: "mask"; url: string };
+
+const resolve = (key: string): Logo | undefined => {
+  if (UPLOADS[key]) {
+    return { kind: "mask", url: `url("data:image/svg+xml;utf8,${encodeURIComponent(UPLOADS[key])}")` };
+  }
+  const icon = (simpleIcons as Record<string, { path?: string }>)[`si${key[0].toUpperCase()}${key.slice(1)}`];
+  return icon?.path ? { kind: "path", d: icon.path } : undefined;
+};
+
+const items = SKILLS.flatMap(group => group.ITEMS).map(name => ({
+  name,
+  logos: (LOGOS[name] ?? []).map(resolve).filter((logo): logo is Logo => !!logo),
+}));
+---
+
+<div data-marquee class="tech-marquee relative overflow-hidden rounded-lg border border-black/15 dark:border-white/20 bg-linear-to-r from-stone-200/60 via-transparent to-stone-200/60 dark:from-stone-800/50 dark:to-stone-800/50 py-5">
+  <div class="tech-marquee-viewport">
+    <div data-marquee-track class="tech-marquee-track flex w-max">
+      {[false, true].map(duplicate => (
+        <ul class="flex shrink-0 items-center" aria-hidden={duplicate ? "true" : undefined} data-marquee-dup={duplicate ? "" : undefined}>
+          {items.map(item => (
+            <li class="flex shrink-0 items-center gap-2 pr-10 text-sm text-black/75 dark:text-white/75">
+              {item.logos.map(logo =>
+                logo.kind === "path" ? (
+                  <svg viewBox="0 0 24 24" fill="currentColor" class="size-5 shrink-0" aria-hidden="true">
+                    <path d={logo.d} />
+                  </svg>
+                ) : (
+                  <span
+                    class="size-5 shrink-0 bg-current"
+                    style={`mask: ${logo.url} center / contain no-repeat; -webkit-mask: ${logo.url} center / contain no-repeat;`}
+                    aria-hidden="true"
+                  ></span>
+                )
+              )}
+              <span class="whitespace-nowrap">{item.name}</span>
+            </li>
+          ))}
+        </ul>
+      ))}
+    </div>
+  </div>
+</div>
+
+<script>
+  // Pixels per second at normal speed, and the fraction kept while hovered.
+  const SPEED = 40;
+  const HOVER_RATE = 0.25;
+
+  function start(root: HTMLElement) {
+    const track = root.querySelector<HTMLElement>("[data-marquee-track]");
+    if (!track) return;
+
+    // The track holds the list twice, so moving it by half its width lands
+    // exactly where it started: a seamless loop. It drifts rightwards, as
+    // the original's `reverse` did.
+    const half = track.scrollWidth / 2;
+    const animation = track.animate(
+      [{ transform: "translateX(-50%)" }, { transform: "translateX(0)" }],
+      { duration: (half / SPEED) * 1000, iterations: Infinity },
+    );
+
+    // Ease the speed change instead of snapping between rates.
+    let rate = 1;
+    let target = 1;
+    let frame = 0;
+    const step = () => {
+      rate += (target - rate) * 0.1;
+      if (Math.abs(target - rate) < 0.005) rate = target;
+      animation.updatePlaybackRate(rate);
+      frame = rate === target ? 0 : requestAnimationFrame(step);
+    };
+    const ease = (to: number) => {
+      target = to;
+      if (!frame) frame = requestAnimationFrame(step);
+    };
+    root.addEventListener("pointerenter", () => ease(HOVER_RATE));
+    root.addEventListener("pointerleave", () => ease(1));
+  }
+
+  // Under reduced motion the CSS below lays the list out statically instead.
+  // Widths are measured after web fonts load so the loop distance is right.
+  document.addEventListener("astro:page-load", () => {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    document.fonts.ready.then(() => {
+      document.querySelectorAll<HTMLElement>("[data-marquee]").forEach(start);
+    });
+  });
+</script>
+
+<style>
+  /* Soft fade at both ends in place of the original's progressive blur. */
+  .tech-marquee-viewport {
+    mask-image: linear-gradient(to right, transparent, black 12%, black 88%, transparent);
+  }
+
+  .tech-marquee-track {
+    will-change: transform;
+  }
+
+  /* No scrolling under reduced motion: the full list wraps instead, so all
+     of it stays readable, and the duplicate copy is dropped. */
+  @media (prefers-reduced-motion: reduce) {
+    .tech-marquee-viewport {
+      mask-image: none;
+      padding-inline: 1.25rem;
+    }
+
+    /* Block, not flex: as a flex item the list keeps its one-line width
+       and can't wrap. */
+    .tech-marquee-track {
+      display: block;
+      width: auto;
+    }
+
+    .tech-marquee-track > ul {
+      flex-wrap: wrap;
+      row-gap: 0.75rem;
+    }
+
+    [data-marquee-dup] {
+      display: none;
+    }
+  }
+</style>

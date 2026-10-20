@@ -21,3 +21,11 @@ export type Skills = {
   LABEL: string;
   ITEMS: string[];
 }[];
+
+export type Highlights = {
+  LABEL: string;
+  TITLE: string;
+  DETAIL?: string;
+  /** The large tile; meant for exactly one entry, the current one. */
+  FEATURED?: boolean;
+}[];

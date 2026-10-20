@@ -1,4 +1,4 @@
-import type { Site, Metadata, Socials, Skills } from "@types";
+import type { Site, Metadata, Socials, Skills, Highlights } from "@types";
 
 export const SITE: Site = {
   NAME: "hush's blog",
@@ -13,6 +13,16 @@ export const HOME: Metadata = {
   TITLE: "Home",
   DESCRIPTION: "Projects, experiments, notes, and CTF writeups on cybersecurity and software engineering.",
 };
+
+// ABOUT and HIGHLIGHTS are shared by the homepage About section and the hero
+// terminal's `about` / `whoami` commands, so the two never drift apart.
+export const ABOUT = "Third Year Computer Science undergraduate at Universitas Gadjah Mada with experience in software development, business consulting, and cross-functional collaboration. Skilled in translating organizational needs into technical solutions, analyzing business problems, and engaging stakeholders through leadership and project-based initiatives. Currently expanding my international and business perspective through an exchange program at Jeonbuk National University, with a strong interest in leveraging technology to solve business challenges and create meaningful impact.";
+
+export const HIGHLIGHTS: Highlights = [
+  { LABEL: "Now", TITLE: "Exchange student", DETAIL: "Jeonbuk National University, South Korea", FEATURED: true },
+  { LABEL: "Studying", TITLE: "Computer Science, 3rd year", DETAIL: "Universitas Gadjah Mada" },
+  { LABEL: "Communities", TITLE: "OmahTI UGM & KOMATIK", DETAIL: "Cybersecurity" },
+];
 
 export const BLOG: Metadata = {
   TITLE: "Blog",
@@ -57,14 +67,14 @@ export const SKILLS: Skills = [
   },
   {
     LABEL: "Frameworks & Libraries",
-    ITEMS: ["React", "Tailwind CSS", "Node.js/Express", "FastAPI", "SwiftUI", "scikit-learn", "pandas"],
+    ITEMS: ["React", "Tailwind CSS", "Node.js/Express", "FastAPI", "scikit-learn", "pandas"],
   },
   {
     LABEL: "Databases & Infrastructure",
-    ITEMS: ["PostgreSQL", "Redis", "Docker", "Terraform", "Microsoft Azure", "Linux"],
+    ITEMS: ["PostgreSQL", "Redis", "Docker", "Terraform", "Linux"],
   },
   {
     LABEL: "Tools",
-    ITEMS: ["Git/GitHub", "Postman", "VS Code", "LaTeX", "Google Workspace", "Excel"],
+    ITEMS: ["Git/GitHub", "Postman", "VS Code", "LaTeX", "Excel"],
   },
 ];

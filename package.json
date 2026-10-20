@@ -45,5 +45,8 @@
     "eslint-plugin-jsx-a11y": {
       "eslint": "$eslint"
     }
+  },
+  "devDependencies": {
+    "simple-icons": "^16.35.0"
   }
 }

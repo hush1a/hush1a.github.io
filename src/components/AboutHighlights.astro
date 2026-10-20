@@ -1,0 +1,88 @@
+---
+// "At a glance" tiles under the About paragraph: one large featured tile for
+// what's current, the rest stacked beside it. Uneven sizes on purpose, so it
+// reads as a hierarchy rather than a row of identical cards. Built on
+// GradientCard to match the certification cards (same border, radius and
+// cursor glow).
+//
+// Optional photo for the featured tile: drop src/assets/about/featured.jpg
+// (or .jpeg/.png/.webp) and rebuild. Without one, the tile gets a soft
+// accent wash instead.
+import type { ImageMetadata } from "astro";
+import { Image } from "astro:assets";
+import GradientCard from "@components/GradientCard.astro";
+import { cn } from "@lib/utils";
+import { HIGHLIGHTS } from "@consts";
+
+const photo = Object.values(
+  import.meta.glob<{ default: ImageMetadata }>("/src/assets/about/featured.{jpg,jpeg,png,webp}", { eager: true })
+)[0]?.default;
+
+const featured = HIGHLIGHTS.find(item => item.FEATURED);
+const rest = HIGHLIGHTS.filter(item => item !== featured);
+---
+
+<ul class="grid grid-cols-1 gap-4 md:grid-cols-3">
+  {featured && (
+    <li class="md:col-span-2 md:row-span-2">
+      <GradientCard class="h-full min-h-56 md:min-h-72">
+        <div class="relative flex h-full flex-col justify-end overflow-hidden rounded-[inherit] p-6 sm:p-8">
+          {photo ? (
+            <>
+              <Image
+                src={photo}
+                alt=""
+                widths={[640, 960, 1280]}
+                sizes="(min-width: 768px) 66vw, 100vw"
+                class="absolute inset-0 size-full object-cover"
+              />
+              {/* Scrim so the white text stays readable on any photo. */}
+              <div class="absolute inset-0 bg-linear-to-t from-black/75 via-black/30 to-transparent"></div>
+            </>
+          ) : (
+            <div class="absolute inset-0 bg-[radial-gradient(ellipse_80%_90%_at_100%_0%,var(--color-orange-500)_0%,transparent_60%)] opacity-15 dark:bg-[radial-gradient(ellipse_80%_90%_at_100%_0%,var(--color-orange-300)_0%,transparent_60%)] dark:opacity-15"></div>
+          )}
+          <div class="relative space-y-2">
+            <div class={cn(
+              "text-xs uppercase tracking-wider",
+              photo ? "text-white/80" : "text-orange-700 dark:text-orange-300",
+            )}>
+              {featured.LABEL}
+            </div>
+            <div class={cn(
+              "text-2xl sm:text-3xl font-semibold tracking-tight",
+              photo ? "text-white" : "text-black dark:text-white",
+            )}>
+              {featured.TITLE}
+            </div>
+            {featured.DETAIL && (
+              <div class={photo ? "text-white/85" : ""}>
+                {featured.DETAIL}
+              </div>
+            )}
+          </div>
+        </div>
+      </GradientCard>
+    </li>
+  )}
+
+  {rest.map(item => (
+    <li>
+      <GradientCard class="h-full">
+        <div class="flex h-full flex-col justify-end gap-1 p-6">
+          <div class="text-xs uppercase tracking-wider opacity-75">
+            {item.LABEL}
+          </div>
+          <div class="font-semibold text-black dark:text-white">
+            {item.TITLE}
+          </div>
+          {item.DETAIL && (
+            <div class="text-sm opacity-75">
+              {item.DETAIL}
+            </div>
+          )}
+        </div>
+      </GradientCard>
+    </li>
+  ))}
+</ul>
