@@ -3,7 +3,9 @@ import { getCollection, render } from "astro:content";
 import Container from "@components/Container.astro";
 import PageLayout from "@layouts/PageLayout.astro";
 import ArrowCard from "@components/ArrowCard.astro";
-import Link from "@components/Link.astro";
+import SectionHeading from "@components/SectionHeading.astro";
+import ProjectCard from "@components/ProjectCard.astro";
+import ContactCTA from "@components/ContactCTA.astro";
 import SocialLinks from "@components/SocialLinks.astro";
 import AnimatedButton from "@components/AnimatedButton.astro";
 import TerminalCard from "@components/TerminalCard.astro";
@@ -12,11 +14,6 @@ import TechMarquee from "@components/TechMarquee.astro";
 import AboutHighlights from "@components/AboutHighlights.astro";
 import { dateRange } from "@lib/utils";
 import { SITE, HOME, ABOUT } from "@consts";
-
-const writeups = (await getCollection("writeups"))
-  .filter(writeup => !writeup.data.draft)
-  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
-  .slice(0,SITE.NUM_WRITEUPS_ON_HOMEPAGE);
 
 const blog = (await getCollection("blog"))
   .filter(post => !post.data.draft)
@@ -89,10 +86,10 @@ const work = await Promise.all(
       </div>
     </section>
 
+    <!-- Below the hero, strongest proof first: who I am, what I've built,
+         where I've worked, then (once there are any) blog posts. -->
     <section class="animate space-y-6 py-12">
-      <h2 class="font-semibold text-black dark:text-white">
-        About me
-      </h2>
+      <SectionHeading title="About me" />
       <article>
         <p>
           {ABOUT}
@@ -106,43 +103,36 @@ const work = await Promise.all(
           Technologies I've worked with
         </h3>
         <TechMarquee />
+        <div class="flex justify-center pt-2">
+          <AnimatedButton href="/certifications" size="lg" class="w-full max-w-md">
+            View my professional certifications
+            <svg
+              slot="icon-right"
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+              class="transition-transform duration-200 group-hover:translate-x-0.5"
+            >
+              <line x1="5" y1="12" x2="19" y2="12" />
+              <polyline points="12 5 19 12 12 19" />
+            </svg>
+          </AnimatedButton>
+        </div>
       </div>
     </section>
 
-    {writeups.length > 0 && (
+    {projects.length > 0 && (
       <section class="animate space-y-6 py-12">
-        <div class="flex flex-wrap gap-y-2 items-center justify-between">
-          <h2 class="font-semibold text-black dark:text-white">
-            Recent writeups
-          </h2>
-          <Link href="/writeups">
-            See all writeups
-          </Link>
-        </div>
-        <ul class="flex flex-col gap-4">
-          {writeups.map(writeup => (
+        <SectionHeading title="Recent projects" href="/projects" linkLabel="See all projects" />
+        <ul class="grid grid-cols-1 gap-4 md:grid-cols-3">
+          {projects.map(project => (
             <li>
-              <ArrowCard entry={writeup} />
-            </li>
-          ))}
-        </ul>
-      </section>
-    )}
-
-    {blog.length > 0 && (
-      <section class="animate space-y-6 py-12">
-        <div class="flex flex-wrap gap-y-2 items-center justify-between">
-          <h2 class="font-semibold text-black dark:text-white">
-            Latest posts
-          </h2>
-          <Link href="/blog">
-            See all posts
-          </Link>
-        </div>
-        <ul class="flex flex-col gap-4">
-          {blog.map(post => (
-            <li>
-              <ArrowCard entry={post} />
+              <ProjectCard entry={project} />
             </li>
           ))}
         </ul>
@@ -151,14 +141,7 @@ const work = await Promise.all(
 
     {work.length > 0 && (
       <section class="animate space-y-6 py-12">
-        <div class="flex flex-wrap gap-y-2 items-center justify-between">
-          <h2 class="font-semibold text-black dark:text-white">
-            Work Experience
-          </h2>
-          <Link href="/work">
-            See all work
-          </Link>
-        </div>
+        <SectionHeading title="Experience" href="/work" linkLabel="See all experience" />
         <ul class="flex flex-col space-y-4">
           {work.map(entry => (
             <li>
@@ -180,24 +163,21 @@ const work = await Promise.all(
       </section>
     )}
 
-    {projects.length > 0 && (
+    {blog.length > 0 && (
       <section class="animate space-y-6 py-12">
-        <div class="flex flex-wrap gap-y-2 items-center justify-between">
-          <h2 class="font-semibold text-black dark:text-white">
-            Recent projects
-          </h2>
-          <Link href="/projects">
-            See all projects
-          </Link>
-        </div>
+        <SectionHeading title="Latest posts" href="/blog" linkLabel="See all posts" />
         <ul class="flex flex-col gap-4">
-          {projects.map(project => (
+          {blog.map(post => (
             <li>
-              <ArrowCard entry={project} />
+              <ArrowCard entry={post} />
             </li>
           ))}
         </ul>
       </section>
     )}
+
+    <section class="animate py-12">
+      <ContactCTA />
+    </section>
   </Container>
 </PageLayout>

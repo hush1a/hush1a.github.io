@@ -1,35 +1,82 @@
 ---
 import { getCollection } from "astro:content";
 import { getImage } from "astro:assets";
+import type { ImageMetadata } from "astro";
 import PageLayout from "@layouts/PageLayout.astro";
 import Container from "@components/Container.astro";
-import ProjectShowcase, { type ShowcaseProject } from "@components/ProjectShowcase";
+import ProjectShowcase, { type ShowcaseGroup, type ShowcaseProject } from "@components/ProjectShowcase";
 import { PROJECTS } from "@consts";
 
 const projects = (await getCollection("projects"))
   .filter(project => !project.data.draft)
   .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
 
+// Images in a project's markdown body. The pre-rendered HTML only carries a
+// placeholder for each (`<img __ASTRO_IMAGE_="{…}">`), which Astro fills in
+// when it renders the entry's own page; the island gets the raw HTML, so the
+// placeholders are swapped for optimized images here.
+const BODY_IMAGES = import.meta.glob<{ default: ImageMetadata }>(
+  "/src/content/projects/**/*.{jpg,jpeg,png,webp}",
+  { eager: true },
+);
+
+const escapeAttr = (value: string) =>
+  value.replaceAll("&", "&amp;").replaceAll("\"", "&quot;").replaceAll("<", "&lt;");
+
+async function resolveImages(html: string, filePath: string | undefined) {
+  const dir = `/${filePath?.replace(/\/[^/]*$/, "")}`;
+  const placeholders = [...html.matchAll(/<img __ASTRO_IMAGE_="([^"]*)">/g)];
+  const resolved = await Promise.all(placeholders.map(async ([tag, json]) => {
+    const props = JSON.parse(json.replaceAll("&quot;", "\"").replaceAll("&amp;", "&")) as { src: string; alt?: string };
+    const source = BODY_IMAGES[`${dir}/${props.src.replace(/^\.\//, "")}`]?.default;
+    if (!source) return [tag, ""] as const;
+    const image = await getImage({ src: source, width: Math.min(source.width, 1600), format: "webp" });
+    return [tag, `<img src="${image.src}" alt="${escapeAttr(props.alt ?? "")}" width="${image.attributes.width}" height="${image.attributes.height}" loading="lazy" decoding="async">`] as const;
+  }));
+  return resolved.reduce((out, [tag, img]) => out.replace(tag, img), html);
+}
+
 // Flatten entries to plain serialisable props for the React island: the
-// markdown body as pre-rendered HTML, and screenshots resized at build time.
+// markdown body as pre-rendered HTML, and the cover and gallery images
+// resized at build time.
 const showcase: ShowcaseProject[] = await Promise.all(
   projects.map(async project => {
-    const { title, description, date, image, demoURL, repoURL } = project.data;
-    const cover = image && await getImage({ src: image, width: 1600, format: "webp" });
+    const { title, description, date, image, gallery, demoURL, repoURL } = project.data;
+    const cover = image && await getImage({ src: image, width: Math.min(image.width, 1600), format: "webp" });
+    const slides = await Promise.all(gallery.map(async ({ src, alt }) => {
+      const slide = await getImage({ src, width: Math.min(src.width, 1600), format: "webp" });
+      return { src: slide.src, width: Number(slide.attributes.width), height: Number(slide.attributes.height), alt };
+    }));
     return {
       id: project.id,
       title,
       description,
       year: date.getFullYear(),
-      html: project.rendered?.html ?? "",
+      html: await resolveImages(project.rendered?.html ?? "", project.filePath),
       image: cover
         ? { src: cover.src, width: Number(cover.attributes.width), height: Number(cover.attributes.height) }
         : undefined,
+      gallery: slides,
       demoURL,
       repoURL,
     };
   })
 );
+
+// Technical first, then consulting. A group with no entries is left out,
+// so its heading never shows over an empty list.
+const GROUPS = [
+  { id: "technical", label: "Technical" },
+  { id: "consulting", label: "Consulting" },
+] as const;
+
+const groups: ShowcaseGroup[] = GROUPS
+  .map(group => ({
+    ...group,
+    // showcase is built from projects in order, so indices line up.
+    projects: showcase.filter((_, i) => projects[i].data.type === group.id),
+  }))
+  .filter(group => group.projects.length > 0);
 ---
 
 <PageLayout title={PROJECTS.TITLE} description={PROJECTS.DESCRIPTION}>
@@ -38,13 +85,13 @@ const showcase: ShowcaseProject[] = await Promise.all(
       <h1 class="animate font-semibold text-black dark:text-white">
         Projects
       </h1>
-      {showcase.length === 0 ? (
+      {groups.length === 0 ? (
         <p class="animate text-sm opacity-75">
           No projects listed yet.
         </p>
       ) : (
         <div class="animate">
-          <ProjectShowcase client:load projects={showcase} />
+          <ProjectShowcase client:load groups={groups} />
         </div>
       )}
     </div>

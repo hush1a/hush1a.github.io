@@ -1,0 +1,57 @@
+---
+// Homepage project tile: event on top, title and one-line description, the
+// role at the foot. Built on GradientCard so it matches the About highlights
+// and the certification cards.
+//
+// Role and event aren't frontmatter fields; they come from the byline every
+// project entry opens with (`**Back-End Developer** · GarudaHacks 7.0 (…)`).
+// An entry without that line simply shows no eyebrow or role.
+import type { CollectionEntry } from "astro:content";
+import GradientCard from "@components/GradientCard.astro";
+
+type Props = {
+  entry: CollectionEntry<"projects">;
+};
+
+const { entry } = Astro.props;
+
+const byline = entry.body?.match(/^\*\*(.+?)\*\*\s*·\s*(.+)$/m);
+const role = byline?.[1].trim();
+// Drop the parenthesised track so the eyebrow stays one short line.
+const event = byline?.[2].replace(/\s*\(.*\)\s*$/, "").trim();
+// Consulting work is marked as such, so it reads apart from the hackathon
+// builds when the two kinds share the homepage row.
+const eyebrow = entry.data.type === "consulting"
+  ? ["Consulting", event].filter(Boolean).join(" · ")
+  : event;
+---
+
+<a href={`/projects/${entry.id}`} class="group block h-full rounded-xl focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-black/60 dark:focus-visible:outline-white/70">
+  <GradientCard class="h-full">
+    <div class="flex h-full flex-col gap-2 p-6">
+      {eyebrow && (
+        <div class="text-xs uppercase tracking-wider opacity-75">
+          {eyebrow}
+        </div>
+      )}
+      <div class="font-semibold text-black dark:text-white">
+        {entry.data.title}
+      </div>
+      <p class="text-sm line-clamp-3">
+        {entry.data.description}
+      </p>
+      <div class="mt-auto flex items-center justify-between gap-3 pt-4 text-sm">
+        <span class="opacity-75">{role}</span>
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+          aria-hidden="true"
+          class="size-5 shrink-0 stroke-2 fill-none stroke-current transition-transform duration-300 ease-in-out group-hover:translate-x-0.5 group-hover:text-black dark:group-hover:text-white"
+        >
+          <line x1="5" y1="12" x2="19" y2="12" />
+          <polyline points="12 5 19 12 12 19" />
+        </svg>
+      </div>
+    </div>
+  </GradientCard>
+</a>

@@ -30,9 +30,14 @@ const projects = defineCollection({
     draft: z.boolean().optional(),
     demoURL: z.string().optional(),
     repoURL: z.string().optional(),
+    // Which group on /projects the entry is listed under.
+    type: z.enum(["technical", "consulting"]).default("technical"),
     // Screenshot colocated in the entry folder (`image: "./cover.png"`).
     // Optional: the showcase falls back to a generated cover without one.
     image: image().optional(),
+    // Extra images shown after the cover in the detail view's carousel
+    // (slides, mockups, diagrams), each with its own alt text.
+    gallery: z.array(z.object({ src: image(), alt: z.string() })).default([]),
   }),
 });
 

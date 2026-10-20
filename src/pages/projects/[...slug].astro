@@ -1,5 +1,6 @@
 ---
 import { type CollectionEntry, getCollection, render } from "astro:content";
+import { Image } from "astro:assets";
 import PageLayout from "@layouts/PageLayout.astro";
 import Container from "@components/Container.astro";
 import FormattedDate from "@components/FormattedDate.astro";
@@ -63,5 +64,24 @@ const { Content } = await render(project);
     <article class="animate">
       <Content />
     </article>
+    {/* The same images the /projects carousel shows, stacked here. */}
+    {project.data.gallery.length > 0 && (
+      <div class="animate mt-12 space-y-10">
+        {project.data.gallery.map(image => (
+          <figure class="space-y-3">
+            <Image
+              src={image.src}
+              alt={image.alt}
+              widths={[...new Set([800, 1200, 1600].map(w => Math.min(w, image.src.width)))]}
+              sizes="(min-width: 768px) 768px, 100vw"
+              class="w-full rounded-xl border border-black/15 dark:border-white/20"
+            />
+            <figcaption class="text-sm opacity-75">
+              {image.alt}
+            </figcaption>
+          </figure>
+        ))}
+      </div>
+    )}
   </Container>
 </PageLayout>

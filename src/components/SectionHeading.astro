@@ -1,0 +1,25 @@
+---
+// Homepage section heading, with an optional "see all" link on the right.
+// One step up from body size so the sections read as chapters under the
+// hero, while sub-headings inside a section (h3) stay at body size.
+import Link from "@components/Link.astro";
+
+type Props = {
+  title: string;
+  href?: string;
+  linkLabel?: string;
+};
+
+const { title, href, linkLabel } = Astro.props;
+---
+
+<div class="flex flex-wrap gap-y-2 items-baseline justify-between">
+  <h2 class="text-xl sm:text-2xl font-semibold tracking-tight text-black dark:text-white">
+    {title}
+  </h2>
+  {href && linkLabel && (
+    <Link href={href}>
+      {linkLabel}
+    </Link>
+  )}
+</div>
