@@ -165,19 +165,90 @@ const data = {
       return span;
     };
 
-    const print = (lines: Line[], extraClass = "") => {
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const scrollToEnd = () => {
+      body.scrollTop = body.scrollHeight;
+    };
+
+    // The output currently typing, if any. Starting new output, or clearing,
+    // completes it instantly: animation never makes the visitor wait.
+    let typing: { finish: () => void } | null = null;
+
+    // Types a freshly printed block out character by character, with a block
+    // cursor at the head. Works on the block's text nodes, so links and
+    // accents keep their markup and simply fill in as they're reached.
+    // Speed adapts to length: short output takes ~150ms, and even `about`
+    // finishes within 900ms.
+    const typeOut = (block: HTMLElement) => {
+      if (reduceMotion.matches) return;
+
+      const walker = document.createTreeWalker(block, NodeFilter.SHOW_TEXT);
+      const nodes: { node: Text; text: string }[] = [];
+      for (let node = walker.nextNode(); node; node = walker.nextNode()) {
+        nodes.push({ node: node as Text, text: node.textContent ?? "" });
+        node.textContent = "";
+      }
+      const total = nodes.reduce((sum, n) => sum + n.text.length, 0);
+      const duration = Math.min(Math.max(total * 12, 150), 900);
+
+      const caret = document.createElement("span");
+      caret.className = "term-caret";
+      caret.setAttribute("aria-hidden", "true");
+
+      const render = (count: number) => {
+        let left = count;
+        for (const { node, text } of nodes) {
+          const take = Math.min(left, text.length);
+          node.textContent = text.slice(0, take);
+          left -= take;
+          if (take < text.length) {
+            node.after(caret);
+            return;
+          }
+        }
+      };
+
+      let frame = 0;
+      const finish = () => {
+        cancelAnimationFrame(frame);
+        nodes.forEach(({ node, text }) => (node.textContent = text));
+        caret.remove();
+        typing = null;
+        scrollToEnd();
+      };
+      const started = performance.now();
+      const tick = (now: number) => {
+        const count = Math.round(total * Math.min(1, (now - started) / duration));
+        render(count);
+        scrollToEnd();
+        if (count >= total) finish();
+        else frame = requestAnimationFrame(tick);
+      };
+
+      typing = { finish };
+      render(0);
+      frame = requestAnimationFrame(tick);
+    };
+
+    const print = (lines: Line[]) => {
+      typing?.finish();
       const block = document.createElement("div");
-      block.className = `whitespace-pre-wrap break-words text-black dark:text-white ${extraClass}`;
+      block.className = "term-appear whitespace-pre-wrap break-words text-black dark:text-white";
       for (const line of lines) {
         const row = document.createElement("div");
         for (const part of Array.isArray(line) ? line : [line]) row.appendChild(renderPart(part));
         block.appendChild(row);
       }
       log.appendChild(block);
+      typeOut(block);
     };
 
+    // The visitor's own command: no typing (they just typed it), only the
+    // appear animation.
     const echo = (command: string) => {
+      typing?.finish();
       const row = document.createElement("div");
+      row.className = "term-appear";
       row.append(renderPart({ text: "$", accent: true }), document.createTextNode(` ${command}`));
       log.appendChild(row);
     };
@@ -232,6 +303,7 @@ const data = {
           print(data.contact.map(c => [`${c.name.toLowerCase().padEnd(10)}`, { text: c.href.replace(/^mailto:|^https?:\/\//, ""), href: c.href }]));
           return;
         case "clear":
+          typing?.finish();
           log.replaceChildren();
           return;
         // Easter eggs. `bonus` is listed in help on purpose; the rest aren't.
@@ -262,7 +334,7 @@ const data = {
       }
       input.value = "";
       run(value);
-      body.scrollTop = body.scrollHeight;
+      scrollToEnd();
     });
 
     input.addEventListener("keydown", event => {
@@ -292,7 +364,7 @@ const data = {
         } else {
           echo(input.value);
           print([matches.join("  ")]);
-          body.scrollTop = body.scrollHeight;
+          scrollToEnd();
         }
       }
     });
@@ -372,6 +444,34 @@ const data = {
     to {
       width: var(--term-width);
     }
+  }
+
+  /* Command output, created by the script, so :global to escape scoping.
+     Each new block fades and lifts in while its text types out. */
+  :global(.term-appear) {
+    animation: term-appear 180ms ease-out both;
+  }
+
+  @keyframes term-appear {
+    from {
+      opacity: 0;
+      transform: translateY(4px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  /* Block cursor at the head of the typing text. */
+  :global(.term-caret) {
+    display: inline-block;
+    width: 0.6ch;
+    height: 1.1em;
+    margin-left: 1px;
+    vertical-align: text-bottom;
+    background: currentColor;
+    opacity: 0.7;
   }
 
   @keyframes term-fade {
