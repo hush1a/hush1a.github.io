@@ -35,9 +35,19 @@ const projects = defineCollection({
     // Screenshot colocated in the entry folder (`image: "./cover.png"`).
     // Optional: the showcase falls back to a generated cover without one.
     image: image().optional(),
+    // Caption for the cover in the detail view's carousel ("Cover" if unset).
+    imageAlt: z.string().optional(),
     // Extra images shown after the cover in the detail view's carousel
     // (slides, mockups, diagrams), each with its own alt text.
     gallery: z.array(z.object({ src: image(), alt: z.string() })).default([]),
+    // Technologies, grouped by part of the system. `mine` marks the part I
+    // built, which the stack display highlights. Names resolve to logos via
+    // @lib/techLogos.
+    stack: z.array(z.object({
+      area: z.string(),
+      mine: z.boolean().default(false),
+      items: z.array(z.string()),
+    })).default([]),
   }),
 });
 

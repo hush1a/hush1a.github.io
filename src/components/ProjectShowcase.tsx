@@ -9,6 +9,7 @@ import {
   useSpring,
 } from "motion/react";
 import { cn } from "@lib/utils";
+import type { TechLogo } from "@lib/techLogos";
 
 // Project gallery for /projects: hover a title for a cursor-following
 // preview, click to expand it in place. The title and thumbnail share a
@@ -23,9 +24,11 @@ export type ShowcaseProject = {
   description: string;
   year: number;
   html: string;
-  image?: { src: string; width: number; height: number };
+  image?: { src: string; width: number; height: number; alt?: string };
   // Shown after the cover in the detail view's carousel.
   gallery: { src: string; width: number; height: number; alt: string }[];
+  // Technologies by part of the system, logos resolved at build time.
+  stack: { area: string; mine: boolean; items: { name: string; logos: TechLogo[] }[] }[];
   demoURL?: string;
   repoURL?: string;
 };
@@ -314,6 +317,8 @@ function Detail({
 
       <Carousel project={project} morph={morph} />
 
+      <TechStack stack={project.stack} />
+
       <motion.article {...fadeIn} dangerouslySetInnerHTML={{ __html: project.html }} />
 
       <motion.div
@@ -383,7 +388,7 @@ function Carousel({ project, morph }: { project: ShowcaseProject; morph: boolean
     return Math.min(d, count - d) <= 1;
   };
 
-  const caption = index === 0 ? "Cover" : project.gallery[index - 1].alt;
+  const caption = index === 0 ? project.image?.alt ?? "Cover" : project.gallery[index - 1].alt;
   const pad = (n: number) => String(n).padStart(2, "0");
 
   return (
@@ -472,6 +477,62 @@ function Carousel({ project, morph }: { project: ShowcaseProject; morph: boolean
       </motion.div>
     </div>
   );
+}
+
+// "Built with": the project's technologies grouped by part of the system,
+// with the part I built marked and drawn at full contrast. Mirrors
+// TechStack.astro, which shows the same on the full project page.
+function TechStack({ stack }: { stack: ShowcaseProject["stack"] }) {
+  if (stack.length === 0) return null;
+  return (
+    <motion.section {...FADE_IN} aria-labelledby="built-with" className="space-y-4">
+      <h3 id="built-with" className="text-xs uppercase tracking-wider opacity-75">
+        Built with
+      </h3>
+      <div className="space-y-4">
+        {stack.map(group => (
+          <div key={group.area} className="grid gap-2 sm:grid-cols-[9rem_minmax(0,1fr)] sm:gap-4">
+            <div className="flex items-center gap-2 self-start sm:pt-1.5 text-sm font-medium text-black dark:text-white">
+              {group.area}
+              {group.mine && (
+                <span className="rounded-md px-1.5 py-0.5 text-xs bg-orange-500/15 text-orange-700 dark:bg-orange-500/20 dark:text-orange-300">
+                  My part
+                </span>
+              )}
+            </div>
+            <ul className="flex flex-wrap gap-2">
+              {group.items.map(item => (
+                <li
+                  key={item.name}
+                  className={cn(
+                    "inline-flex items-center gap-2 rounded-md border px-2.5 py-1.5 text-sm",
+                    group.mine
+                      ? "border-black/25 bg-white/60 text-black dark:border-white/30 dark:bg-white/5 dark:text-white"
+                      : "border-black/15 text-black/75 dark:border-white/20 dark:text-white/75",
+                  )}
+                >
+                  {item.logos.map((logo, i) => <TechIcon key={i} logo={logo} />)}
+                  {item.name}
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
+      </div>
+    </motion.section>
+  );
+}
+
+function TechIcon({ logo }: { logo: TechLogo }) {
+  if (logo.kind === "path") {
+    return (
+      <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" className="size-4 shrink-0">
+        <path d={logo.d} />
+      </svg>
+    );
+  }
+  const mask = `${logo.url} center / contain no-repeat`;
+  return <span aria-hidden="true" className="size-4 shrink-0 bg-current" style={{ mask, WebkitMask: mask }} />;
 }
 
 function CarouselButton({ label, onClick, children }: { label: string; onClick: () => void; children: string }) {

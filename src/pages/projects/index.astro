@@ -2,6 +2,7 @@
 import { getCollection } from "astro:content";
 import { getImage } from "astro:assets";
 import type { ImageMetadata } from "astro";
+import { logosFor } from "@lib/techLogos";
 import PageLayout from "@layouts/PageLayout.astro";
 import Container from "@components/Container.astro";
 import ProjectShowcase, { type ShowcaseGroup, type ShowcaseProject } from "@components/ProjectShowcase";
@@ -41,7 +42,7 @@ async function resolveImages(html: string, filePath: string | undefined) {
 // resized at build time.
 const showcase: ShowcaseProject[] = await Promise.all(
   projects.map(async project => {
-    const { title, description, date, image, gallery, demoURL, repoURL } = project.data;
+    const { title, description, date, image, imageAlt, gallery, stack, demoURL, repoURL } = project.data;
     const cover = image && await getImage({ src: image, width: Math.min(image.width, 1600), format: "webp" });
     const slides = await Promise.all(gallery.map(async ({ src, alt }) => {
       const slide = await getImage({ src, width: Math.min(src.width, 1600), format: "webp" });
@@ -54,9 +55,13 @@ const showcase: ShowcaseProject[] = await Promise.all(
       year: date.getFullYear(),
       html: await resolveImages(project.rendered?.html ?? "", project.filePath),
       image: cover
-        ? { src: cover.src, width: Number(cover.attributes.width), height: Number(cover.attributes.height) }
+        ? { src: cover.src, width: Number(cover.attributes.width), height: Number(cover.attributes.height), alt: imageAlt }
         : undefined,
       gallery: slides,
+      stack: stack.map(group => ({
+        ...group,
+        items: group.items.map(name => ({ name, logos: logosFor(name) })),
+      })),
       demoURL,
       repoURL,
     };

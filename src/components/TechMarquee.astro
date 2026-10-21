@@ -7,59 +7,14 @@
 // the strip so names can be read (the original sped it up).
 //
 // Logos come from Simple Icons at build time, drawn in the text colour so
-// they match the site's neutral palette. Anything Simple Icons doesn't carry
-// can be dropped into src/assets/tech-logos/<key>.svg (see UPLOADS below);
-// an uploaded file also overrides a Simple Icons logo with the same key.
-import * as simpleIcons from "simple-icons";
+// they match the site's neutral palette; see @lib/techLogos for the lookup
+// and for uploading logos Simple Icons doesn't carry.
+import { logosFor } from "@lib/techLogos";
 import { SKILLS } from "@consts";
-
-// Each skill name in @consts mapped to its logo key(s): a Simple Icons slug,
-// or an upload name. Combined entries like "Node.js/Express" show both.
-const LOGOS: Record<string, string[]> = {
-  "Python": ["python"],
-  "JavaScript/TypeScript": ["javascript", "typescript"],
-  "C++": ["cplusplus"],
-  "Swift": ["swift"],
-  "SQL": ["sql"],
-  "React": ["react"],
-  "Tailwind CSS": ["tailwindcss"],
-  "Node.js/Express": ["nodedotjs", "express"],
-  "FastAPI": ["fastapi"],
-  "scikit-learn": ["scikitlearn"],
-  "pandas": ["pandas"],
-  "PostgreSQL": ["postgresql"],
-  "Redis": ["redis"],
-  "Docker": ["docker"],
-  "Terraform": ["terraform"],
-  "Linux": ["linux"],
-  "Git/GitHub": ["git", "github"],
-  "Postman": ["postman"],
-  "VS Code": ["vscode"],
-  "LaTeX": ["latex"],
-  "Excel": ["excel"],
-};
-
-// Uploaded SVGs, keyed by file name. Rendered as a mask filled with the text
-// colour, so any upload comes out monochrome like the rest of the strip.
-const UPLOADS = Object.fromEntries(
-  Object.entries(
-    import.meta.glob<string>("/src/assets/tech-logos/*.svg", { query: "?raw", import: "default", eager: true })
-  ).map(([path, svg]) => [path.split("/").pop()!.replace(/\.svg$/, ""), svg])
-);
-
-type Logo = { kind: "path"; d: string } | { kind: "mask"; url: string };
-
-const resolve = (key: string): Logo | undefined => {
-  if (UPLOADS[key]) {
-    return { kind: "mask", url: `url("data:image/svg+xml;utf8,${encodeURIComponent(UPLOADS[key])}")` };
-  }
-  const icon = (simpleIcons as Record<string, { path?: string }>)[`si${key[0].toUpperCase()}${key.slice(1)}`];
-  return icon?.path ? { kind: "path", d: icon.path } : undefined;
-};
 
 const items = SKILLS.flatMap(group => group.ITEMS).map(name => ({
   name,
-  logos: (LOGOS[name] ?? []).map(resolve).filter((logo): logo is Logo => !!logo),
+  logos: logosFor(name),
 }));
 ---
 

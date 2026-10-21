@@ -1,0 +1,62 @@
+---
+// "Built with" on the full project page: the project's technologies grouped
+// by part of the system, with the part I built marked and drawn at full
+// contrast. Mirrors TechStack in ProjectShowcase.tsx (the /projects detail
+// view), so keep the two in step.
+import type { CollectionEntry } from "astro:content";
+import { cn } from "@lib/utils";
+import { logosFor } from "@lib/techLogos";
+
+type Props = {
+  stack: CollectionEntry<"projects">["data"]["stack"];
+};
+
+const { stack } = Astro.props;
+---
+
+{stack.length > 0 && (
+  <section aria-labelledby="built-with" class="space-y-4">
+    <h2 id="built-with" class="text-xs uppercase tracking-wider opacity-75">
+      Built with
+    </h2>
+    <div class="space-y-4">
+      {stack.map(group => (
+        <div class="grid gap-2 sm:grid-cols-[9rem_minmax(0,1fr)] sm:gap-4">
+          <div class="flex items-center gap-2 self-start sm:pt-1.5 text-sm font-medium text-black dark:text-white">
+            {group.area}
+            {group.mine && (
+              <span class="rounded-md px-1.5 py-0.5 text-xs bg-orange-500/15 text-orange-700 dark:bg-orange-500/20 dark:text-orange-300">
+                My part
+              </span>
+            )}
+          </div>
+          <ul class="flex flex-wrap gap-2">
+            {group.items.map(name => (
+              <li class={cn(
+                "inline-flex items-center gap-2 rounded-md border px-2.5 py-1.5 text-sm",
+                group.mine
+                  ? "border-black/25 bg-white/60 text-black dark:border-white/30 dark:bg-white/5 dark:text-white"
+                  : "border-black/15 text-black/75 dark:border-white/20 dark:text-white/75",
+              )}>
+                {logosFor(name).map(logo =>
+                  logo.kind === "path" ? (
+                    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" class="size-4 shrink-0">
+                      <path d={logo.d} />
+                    </svg>
+                  ) : (
+                    <span
+                      class="size-4 shrink-0 bg-current"
+                      style={`mask: ${logo.url} center / contain no-repeat; -webkit-mask: ${logo.url} center / contain no-repeat;`}
+                      aria-hidden="true"
+                    ></span>
+                  )
+                )}
+                {name}
+              </li>
+            ))}
+          </ul>
+        </div>
+      ))}
+    </div>
+  </section>
+)}
