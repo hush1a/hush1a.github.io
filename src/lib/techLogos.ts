@@ -23,6 +23,7 @@ const ALIASES: Record<string, string[]> = {
   "SwiftUI": ["swift"],
   "React Native": ["react"],
   "JWT": ["jsonwebtokens"],
+  "Claude API": ["claude"],
 };
 
 // Uploaded SVGs, keyed by file name. Rendered as a mask filled with the text
