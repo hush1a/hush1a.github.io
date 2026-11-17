@@ -4,7 +4,7 @@ Personal site — projects, notes, and CTF writeups on cybersecurity and softwar
 
 Live at [hush1a.github.io](https://hush1a.github.io).
 
-Built with [Astro](https://astro.build), Tailwind CSS, and TypeScript. No UI framework, no client-side JS beyond the theme toggle. Based on the [Astro Nano](https://github.com/markhorn-dev/astro-nano) theme by markhorn-dev.
+Built with [Astro](https://astro.build), Tailwind CSS, and TypeScript, with a single React island for the projects list. Based on the [Astro Nano](https://github.com/markhorn-dev/astro-nano) theme by markhorn-dev.
 
 ## Development
 

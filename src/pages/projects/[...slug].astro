@@ -22,6 +22,13 @@ type Props = CollectionEntry<"projects">;
 
 const project = Astro.props;
 const { Content } = await render(project);
+
+// The single detail view, so everything the entry defines is rendered here.
+const cover = project.data.image;
+const coverAlt = project.data.imageAlt ?? project.data.title;
+const coverWidths = cover
+  ? [...new Set([600, 1200, 1600].map(width => Math.min(width, cover.width)))]
+  : [];
 ---
 
 <PageLayout title={project.data.title} description={project.data.description}>
@@ -31,7 +38,7 @@ const { Content } = await render(project);
         Back to projects
       </BackToPrev>
     </div>
-    <div class="space-y-1 my-10">
+    <div class="space-y-3 my-10">
       <div class="animate flex items-center gap-1.5">
         <div class="font-base text-sm">
           <FormattedDate date={project.data.date} />
@@ -44,6 +51,9 @@ const { Content } = await render(project);
       <h1 class="animate text-2xl font-semibold tracking-tight text-black dark:text-white">
         {project.data.title}
       </h1>
+      <p class="animate max-w-2xl leading-relaxed">
+        {project.data.description}
+      </p>
       {(project.data.demoURL || project.data.repoURL) && (
         <nav class="animate flex gap-1">
           {project.data.demoURL && (
@@ -62,6 +72,17 @@ const { Content } = await render(project);
         </nav>
       )}
     </div>
+    {cover && (
+      <div class="animate mb-10">
+        <Image
+          src={cover}
+          alt={coverAlt}
+          widths={coverWidths}
+          sizes="(min-width: 768px) 768px, 100vw"
+          class="w-full rounded-xl border border-black/15 dark:border-white/20"
+        />
+      </div>
+    )}
     {project.data.stack.length > 0 && (
       <div class="animate mb-10">
         <TechStack stack={project.data.stack} />
@@ -70,7 +91,7 @@ const { Content } = await render(project);
     <article class="animate">
       <Content />
     </article>
-    {/* The same images the /projects carousel shows, stacked here. */}
+    {/* Remaining images, after the body. The cover is shown above the stack. */}
     {project.data.gallery.length > 0 && (
       <div class="animate mt-12 space-y-10">
         {project.data.gallery.map(image => (

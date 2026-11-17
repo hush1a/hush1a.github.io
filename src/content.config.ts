@@ -33,11 +33,11 @@ const projects = defineCollection({
     // Which group on /projects the entry is listed under.
     type: z.enum(["technical", "consulting"]).default("technical"),
     // Screenshot colocated in the entry folder (`image: "./cover.png"`).
-    // Optional: the showcase falls back to a generated cover without one.
+    // Optional: the project list falls back to a generated cover without one.
     image: image().optional(),
-    // Caption for the cover in the detail view's carousel ("Cover" if unset).
+    // Alt text for the cover on the project page (the title if unset).
     imageAlt: z.string().optional(),
-    // Extra images shown after the cover in the detail view's carousel
+    // Extra images shown after the body on the project page
     // (slides, mockups, diagrams), each with its own alt text.
     gallery: z.array(z.object({ src: image(), alt: z.string() })).default([]),
     // Technologies, grouped by part of the system. `mine` marks the part I
