@@ -3,6 +3,9 @@ title: "D'Smile"
 description: "Strategic initiative plan for a dental clinic, delivered through ShARE DWDG UGM. I led the organizational workstream: recognition, discipline, SOPs and performance governance."
 date: 2026-05-30
 type: "consulting"
+role: "Project Analyst"
+event: "Do Well Do Good UGM"
+eventDetail: "ShARE client project"
 image: "./cover.jpg"
 gallery:
   - src: "./care-framework.jpg"
@@ -26,8 +29,6 @@ gallery:
   - src: "./organizational-timeline.jpg"
     alt: "Three-month organizational rollout timeline"
 ---
-
-**Project Analyst** · Do Well Do Good UGM (ShARE client project)
 
 **Methods:** Organizational diagnosis · SOP redesign · Balanced Scorecard · 360° evaluation · KPI design · Prioritization matrix
 

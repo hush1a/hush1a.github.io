@@ -1,0 +1,128 @@
+---
+// On-page navigation for long writeups. `headings` comes straight from
+// `render()`, so nothing is hand-parsed out of the HTML. The same list is
+// rendered twice: a sticky rail on desktop and a collapsible block above the
+// article on mobile. With fewer than two usable headings there is nothing
+// worth navigating, so the component renders nothing.
+import type { MarkdownHeading } from "astro";
+import { cn } from "@lib/utils";
+
+type Props = {
+  headings: MarkdownHeading[];
+  class?: string;
+};
+
+const { headings, class: className } = Astro.props;
+
+const tocHeadings = headings.filter(
+  heading => heading.depth === 2 || heading.depth === 3,
+);
+
+const linkClass = (depth: number) =>
+  cn(
+    "block border-l border-transparent py-0.5 text-sm transition-colors duration-300",
+    "hover:text-black dark:hover:text-white",
+    "aria-[current=true]:border-black aria-[current=true]:text-black",
+    "dark:aria-[current=true]:border-white dark:aria-[current=true]:text-white",
+    depth === 3 ? "pl-6" : "pl-3",
+  );
+---
+
+{tocHeadings.length >= 2 && (
+  <div
+    data-writeup-toc
+    class={cn("space-y-4 lg:sticky lg:top-24", className)}
+  >
+    <details class="rounded-lg border border-black/15 px-4 py-3 dark:border-white/20 lg:hidden">
+      <summary class="cursor-pointer text-xs uppercase tracking-wider opacity-75">
+        On this page
+      </summary>
+      <ul class="mt-3 space-y-1">
+        {tocHeadings.map(heading => (
+          <li>
+            <a href={`#${heading.slug}`} class={linkClass(heading.depth)}>
+              {heading.text}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </details>
+
+    <nav aria-label="On this page" class="hidden lg:block">
+      <div class="mb-2 text-xs uppercase tracking-wider opacity-75">
+        On this page
+      </div>
+      <ul class="space-y-1">
+        {tocHeadings.map(heading => (
+          <li>
+            <a href={`#${heading.slug}`} class={linkClass(heading.depth)}>
+              {heading.text}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </nav>
+  </div>
+)}
+
+<script>
+  let observer: IntersectionObserver | null = null;
+
+  function initToc() {
+    // A ClientRouter swap leaves the previous headings detached; drop the
+    // observer before wiring up the new ones.
+    observer?.disconnect();
+    observer = null;
+
+    const toc = document.querySelector("[data-writeup-toc]");
+    if (!toc) return;
+
+    // Both the mobile and desktop lists point at the same headings, so
+    // anchors are grouped by id and highlighted together.
+    const anchors = new Map<string, HTMLAnchorElement[]>();
+    for (const link of toc.querySelectorAll<HTMLAnchorElement>("a[href^=\"#\"]")) {
+      const id = decodeURIComponent(link.hash.slice(1));
+      if (!document.getElementById(id)) continue;
+      const group = anchors.get(id) ?? [];
+      group.push(link);
+      anchors.set(id, group);
+    }
+
+    const elements = [...anchors.keys()]
+      .map(id => document.getElementById(id))
+      .filter((element): element is HTMLElement => element !== null);
+    if (elements.length === 0) return;
+
+    const mark = (id: string) => {
+      for (const [key, group] of anchors) {
+        for (const link of group) {
+          if (key === id) link.setAttribute("aria-current", "true");
+          else link.removeAttribute("aria-current");
+        }
+      }
+    };
+
+    // Highlight the highest heading inside a band near the top of the
+    // viewport; when a heading leaves the band the last match stays lit.
+    const visible = new Map<string, number>();
+    observer = new IntersectionObserver((entries) => {
+      for (const entry of entries) {
+        if (entry.isIntersecting) {
+          visible.set(entry.target.id, entry.boundingClientRect.top);
+        } else {
+          visible.delete(entry.target.id);
+        }
+      }
+      const top = [...visible.entries()].sort((a, b) => a[1] - b[1])[0];
+      if (top) mark(top[0]);
+    }, { rootMargin: "-5% 0px -75% 0px", threshold: 0 });
+
+    elements.forEach(element => observer?.observe(element));
+  }
+
+  document.addEventListener("astro:page-load", initToc);
+  document.addEventListener("astro:before-swap", () => {
+    observer?.disconnect();
+    observer = null;
+  });
+</script>

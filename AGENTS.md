@@ -26,7 +26,7 @@ Node 22. Do not add pnpm or yarn lockfiles.
   command
 - `npm run lint` / `npm run lint:fix` — ESLint
 - `node scripts/check-css-coverage.mjs` — run after a build; the expected
-  baseline is 3 uncovered classes (`astro-code`, `github-dark`, `font-base`)
+  baseline is 2 uncovered classes (`astro-code`, `github-dark`)
 
 Run lint, build, and the CSS check before committing or pushing. Pushing to
 `main` deploys straight to production.
@@ -45,6 +45,8 @@ Run lint, build, and the CSS check before committing or pushing. Pushing to
 - Shared element styles live in `src/styles/global.css` as `@apply` rules;
   extend those instead of repeating utility strings.
 - Use `cn()` from `@lib/utils` (clsx + tailwind-merge) for conditional classes.
+- `ArticleEnhancements` (code Copy buttons, image lightbox) is included once
+  per article page: blog, project, and writeup details.
 
 ## Content collections
 
@@ -56,14 +58,21 @@ Schemas: `src/content.config.ts` (zod). Collections: `blog`, `work`,
   `entry.render()`); `entry.body` is `string | undefined`.
 - Entries live at `src/content/<collection>/<slug>/index.md`, with images
   colocated and referenced relatively. `work` uses flat `.md` files.
-- `projects`: `type` is `technical` or `consulting`; optional `image` /
-  `imageAlt` cover; `gallery[]`; grouped `stack[]` where `mine: true` marks the
-  author's part. The `/projects` list only pre-renders a cover thumbnail for
-  its island; the project page renders cover, gallery, stack, and body once.
+- `projects`: `type` is `technical` or `consulting`; optional `role`, `event`,
+  and `eventDetail` (parenthetical track/round) for the byline; optional
+  `image` / `imageAlt` cover; `gallery[]`; grouped `stack[]` where `mine: true`
+  marks the author's part. The `/projects` list only pre-renders a cover
+  thumbnail for its island; the homepage cards also render a small cover
+  thumbnail through `astro:assets`. The project page renders cover, gallery,
+  stack, and body once.
 - `writeups`: `ctf` and `category` are required; `difficulty` is a strict enum
   (`Easy` | `Medium` | `Hard` | `Insane`); the index groups by the exact `ctf`
-  string, so reuse it.
-- `certifications` / `achievements`: YAML data files keyed by slug.
+  string, so reuse it. `WriteupMeta` renders the metadata (tags included) on
+  both the index and the detail page; `WriteupCard` is the index tile;
+  `WriteupToc` is the on-page heading rail.
+- `certifications` / `achievements`: YAML data files keyed by slug. `scan`
+  (certifications) and `image` (achievements) are optional; a missing one
+  renders a dotted placeholder.
 - **Draft filtering is manual.** Every `getCollection()` must chain
   `.filter(x => !x.data.draft)` — including `rss.xml.ts` and
   `getStaticPaths()`.
@@ -77,7 +86,9 @@ Schemas: `src/content.config.ts` (zod). Collections: `blog`, `work`,
 - Technology logos resolve through `src/lib/techLogos.ts`: Simple Icons by
   name, with optional SVG overrides in `src/assets/tech-logos/`.
 - `public/` holds only files that must keep a fixed path (favicons, fonts,
-  `.nojekyll`).
+  `.nojekyll`, and the social-share `og.png`).
+- `scripts/og.svg` is the source for `public/og.png`; re-render it with the
+  installed `sharp` after edits (`sharp("scripts/og.svg").png().toFile(...)`).
 
 ## Site configuration
 
@@ -94,6 +105,8 @@ Schemas: `src/content.config.ts` (zod). Collections: `blog`, `work`,
 - `site` in `astro.config.mjs` must stay `https://hush1a.github.io`; it drives
   canonical URLs, the sitemap, and RSS.
 - `public/.nojekyll` must exist, or GitHub Pages strips `_astro/`.
+- `src/pages/404.astro` is served for unknown paths; it passes `noindex` to
+  `Head.astro`.
 
 ## Current content
 

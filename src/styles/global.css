@@ -87,6 +87,14 @@
   }
 }
 
+/* Body images open in the lightbox, but only where hovering is meaningful;
+   touch users tap images without a modal hijacking their scroll. */
+@media (pointer: fine) {
+  article img {
+    cursor: zoom-in;
+  }
+}
+
 .animate {
   @apply opacity-0 translate-y-3;
   @apply transition-all duration-500 ease-out;

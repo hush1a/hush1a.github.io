@@ -3,6 +3,9 @@ title: "Powering Communities"
 description: "Mini case proposal for UI Innovation War 2026: choosing, structuring and financing CIF's first scalable community solar pilot."
 date: 2026-03-01
 type: "consulting"
+role: "Case Team Member"
+event: "UI Innovation War 2026"
+eventDetail: "Mini Case Competition"
 image: "./cover.jpg"
 gallery:
   - src: "./executive-summary.jpg"
@@ -22,8 +25,6 @@ gallery:
   - src: "./cash-waterfall.jpg"
     alt: "Post-year-5 cash waterfall and lifecycle protection"
 ---
-
-**Case Team Member** · UI Innovation War 2026 (Mini Case Competition)
 
 **Methods:** Decision screening · System sizing · Business model & governance design · Project finance modeling (DSCR, stress tests) · Implementation roadmap
 

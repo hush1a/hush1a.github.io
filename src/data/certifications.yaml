@@ -1,12 +1,19 @@
 # Certifications, keyed by slug. The key becomes the entry id.
 #
 # Add one by dropping the scan in src/data/certificates/ and appending a block
-# below. Required: name, issuer, issued, scan. Optional: expires, credentialID,
+# below. Required: name, issuer, issued. Optional: scan, expires, credentialID,
 # credentialURL. Schema lives in src/content.config.ts and the build fails if a
-# required field is missing or a scan path doesn't resolve.
+# required field is missing or a scan path doesn't resolve. An entry without a
+# scan shows a dotted placeholder.
 #
 # Commit scans at roughly 1200px on the long edge — Astro re-encodes to webp,
 # but it can't shrink a 5MB phone photo that's now in git history forever.
+
+aws_ai_practitioner:
+  name: "AWS Certified AI Practitioner"
+  issuer: "AWS"
+  issued: 2026-10-13
+  scan: "./certificates/aws-ai-practitioner.png"
 
 google_cybersecurity_certificate:
   name: "Google Cybersecurity Certificate"

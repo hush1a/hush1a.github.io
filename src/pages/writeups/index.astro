@@ -2,21 +2,39 @@
 import { getCollection } from "astro:content";
 import Container from "@components/Container.astro";
 import PageLayout from "@layouts/PageLayout.astro";
-import ArrowCard from "@components/ArrowCard.astro";
+import WriteupCard from "@components/WriteupCard.astro";
 import { WRITEUPS } from "@consts";
-import { WRITEUP_BADGE } from "@lib/utils";
 
 const writeups = (await getCollection("writeups"))
   .filter(writeup => !writeup.data.draft)
   .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
 
-// Group by CTF
-const groupedByCTF = writeups.reduce((acc, writeup) => {
-  const ctf = writeup.data.ctf;
-  if (!acc[ctf]) acc[ctf] = [];
-  acc[ctf].push(writeup);
-  return acc;
-}, {} as Record<string, typeof writeups>);
+// Group by the exact `ctf` string. The collection is already date-desc, so
+// entries keep that order within a group and the newest entry fixes where the
+// group sits in the list.
+const groups = new Map<string, typeof writeups>();
+for (const writeup of writeups) {
+  const entries = groups.get(writeup.data.ctf) ?? [];
+  entries.push(writeup);
+  groups.set(writeup.data.ctf, entries);
+}
+
+const ctfGroups = [...groups.entries()]
+  .map(([ctf, entries]) => ({ ctf, entries, newest: entries[0].data.date }))
+  .sort((a, b) => b.newest.valueOf() - a.newest.valueOf());
+
+const categories = new Set(writeups.map(writeup => writeup.data.category));
+
+const summary = writeups.length > 0
+  ? [
+      `${writeups.length} ${writeups.length === 1 ? "writeup" : "writeups"}`,
+      `${groups.size} ${groups.size === 1 ? "CTF" : "CTFs"}`,
+      `${categories.size} ${categories.size === 1 ? "category" : "categories"}`,
+    ].join(" · ")
+  : "";
+
+// Filters would be noise at this size. Worth adding once the list grows past
+// roughly eight entries.
 ---
 
 <PageLayout title={WRITEUPS.TITLE} description={WRITEUPS.DESCRIPTION}>
@@ -29,48 +47,48 @@ const groupedByCTF = writeups.reduce((acc, writeup) => {
         <p class="text-sm opacity-75">
           {WRITEUPS.DESCRIPTION}
         </p>
+        {summary && (
+          <p class="text-sm opacity-75">
+            {summary}
+          </p>
+        )}
       </div>
 
-      <!-- Grouped by CTF -->
-      {Object.entries(groupedByCTF).map(([ctf, ctfWriteups]) => (
-        <section class="animate space-y-4">
-          <div class="flex flex-wrap gap-y-2 items-center justify-between">
-            <h2 class="font-semibold text-black dark:text-white">
-              {ctf}
-            </h2>
-            <div class="text-sm opacity-75">
-              {ctfWriteups.length} {ctfWriteups.length === 1 ? "challenge" : "challenges"}
+      {writeups.length === 0 && (
+        <p class="animate text-sm opacity-75">
+          No writeups yet.
+        </p>
+      )}
+
+      {ctfGroups.map(({ ctf, entries }) => {
+        const withPoints = entries.filter(entry => entry.data.points !== undefined);
+        const totalPoints = withPoints.reduce(
+          (sum, entry) => sum + (entry.data.points ?? 0),
+          0,
+        );
+        return (
+          <section class="animate space-y-4">
+            <div class="flex flex-wrap gap-y-2 items-center justify-between">
+              <h2 class="font-semibold text-black dark:text-white">
+                {ctf}
+              </h2>
+              <div class="text-sm opacity-75">
+                {[
+                  `${entries.length} ${entries.length === 1 ? "challenge" : "challenges"}`,
+                  withPoints.length > 0 && `${totalPoints} pts`,
+                ].filter(Boolean).join(" · ")}
+              </div>
             </div>
-          </div>
-          <ul class="space-y-4">
-            {ctfWriteups.map(writeup => (
-              <li>
-                <ArrowCard entry={writeup} />
-                <div class="flex flex-wrap gap-2 mt-2 ml-4">
-                  <span class={WRITEUP_BADGE.category}>
-                    {writeup.data.category}
-                  </span>
-                  {writeup.data.difficulty && (
-                    <span class={WRITEUP_BADGE.difficulty[writeup.data.difficulty]}>
-                      {writeup.data.difficulty}
-                    </span>
-                  )}
-                  {writeup.data.points && (
-                    <span class={WRITEUP_BADGE.points}>
-                      {writeup.data.points} pts
-                    </span>
-                  )}
-                  {writeup.data.solves && (
-                    <span class={WRITEUP_BADGE.neutral}>
-                      {writeup.data.solves} solves
-                    </span>
-                  )}
-                </div>
-              </li>
-            ))}
-          </ul>
-        </section>
-      ))}
+            <ul class="space-y-4">
+              {entries.map(writeup => (
+                <li>
+                  <WriteupCard entry={writeup} />
+                </li>
+              ))}
+            </ul>
+          </section>
+        );
+      })}
     </div>
   </Container>
 </PageLayout>

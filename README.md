@@ -20,8 +20,8 @@ npm run lint     # eslint
 Content lives in `src/content/<collection>/`, one folder per entry with an `index.md` and any images alongside it. Frontmatter is validated by zod schemas in `src/content.config.ts` — the build fails if a required field is missing.
 
 - **`blog`** — `title`, `description`, `date`, optional `draft`
-- **`projects`** — the above plus optional `demoURL`, `repoURL`
-- **`writeups`** — the above plus required `ctf` and `category`, optional `difficulty` (`Easy`/`Medium`/`Hard`/`Insane`), `points`, `solves`, `tags`
+- **`projects`** — the above plus optional `demoURL`, `repoURL`, and the byline fields `role`, `event`, `eventDetail`
+- **`writeups`** — the above plus required `ctf` and `category`, optional `difficulty` (`Easy`/`Medium`/`Hard`/`Insane`), `points`, `solves`, `tags` (tags are shown on the index and detail pages)
 - **`work`** — `company`, `role`, `dateStart`, `dateEnd` (flat `.md` files, no folder)
 
 Set `draft: true` to keep an entry out of the build.

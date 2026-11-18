@@ -1,0 +1,51 @@
+---
+// Full-width writeup tile for the index. Built on GradientCard so it matches
+// the project and certification cards; the whole card is one link, and the
+// metadata stays link-free so nothing nests interactive elements.
+import type { CollectionEntry } from "astro:content";
+import GradientCard from "@components/GradientCard.astro";
+import FormattedDate from "@components/FormattedDate.astro";
+import WriteupMeta from "@components/WriteupMeta.astro";
+import { readingTime } from "@lib/utils";
+
+type Props = {
+  entry: CollectionEntry<"writeups">;
+};
+
+const { entry } = Astro.props;
+---
+
+<a
+  href={`/writeups/${entry.id}`}
+  class="group block h-full rounded-xl focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-black/60 dark:focus-visible:outline-white/70"
+>
+  <GradientCard class="h-full">
+    <div class="flex h-full flex-col gap-3 p-6">
+      <div class="flex items-center justify-between gap-3 text-sm opacity-75">
+        <div class="flex items-center gap-1.5">
+          <FormattedDate date={entry.data.date} />
+          <span>&bull;</span>
+          <span>{readingTime(entry.body)}</span>
+        </div>
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+          aria-hidden="true"
+          class="size-5 shrink-0 stroke-2 fill-none stroke-current transition-transform duration-300 ease-in-out group-hover:translate-x-0.5 group-hover:text-black dark:group-hover:text-white"
+        >
+          <line x1="5" y1="12" x2="19" y2="12" />
+          <polyline points="12 5 19 12 12 19" />
+        </svg>
+      </div>
+      <div class="space-y-1">
+        <h3 class="text-lg font-semibold text-black dark:text-white">
+          {entry.data.title}
+        </h3>
+        <p class="text-sm line-clamp-2">
+          {entry.data.description}
+        </p>
+      </div>
+      <WriteupMeta data={entry.data} class="mt-auto" />
+    </div>
+  </GradientCard>
+</a>

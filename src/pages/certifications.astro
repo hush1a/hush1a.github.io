@@ -50,13 +50,21 @@ const now = new Date();
                           "paper" surface in both themes rather than directly on the
                           dark page background. */}
                       <div class="rounded-lg border border-black/15 dark:border-white/20 bg-white dark:bg-stone-200 p-3">
-                        <Image
-                          src={cert.data.scan}
-                          alt={`${cert.data.name} certificate issued by ${cert.data.issuer}`}
-                          widths={[400, 600, 900]}
-                          sizes="(min-width: 768px) 600px, 100vw"
-                          class="w-full h-full object-contain aspect-4/3"
-                        />
+                        {cert.data.scan ? (
+                          <Image
+                            src={cert.data.scan}
+                            alt={`${cert.data.name} certificate issued by ${cert.data.issuer}`}
+                            widths={[400, 600, 900]}
+                            sizes="(min-width: 768px) 600px, 100vw"
+                            class="w-full h-full object-contain aspect-4/3"
+                          />
+                        ) : (
+                          <div
+                            class="aspect-4/3 w-full rounded-md text-black/20 dark:text-white/20"
+                            style="background-image: radial-gradient(circle at 1px 1px, currentColor 1px, transparent 0); background-size: 14px 14px;"
+                            aria-hidden="true"
+                          ></div>
+                        )}
                       </div>
                       <div class="space-y-1 px-1 pb-1">
                         <div class="font-semibold text-black dark:text-white">

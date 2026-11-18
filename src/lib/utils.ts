@@ -31,19 +31,24 @@ export function dateRange(startDate: Date, endDate?: Date | string): string {
   const end = typeof endDate === "string" ? endDate : monthYear(endDate);
   return `${start} – ${end}`;
 }
-// Badge colours for writeup metadata, shared by the writeups index and the
-// writeup page so the same field always looks the same. Each pairs a light
-// and dark variant: -700 text on a faint tint in light mode, -300 in dark.
-const BADGE_BASE = "px-2 py-1 rounded-sm text-sm";
+// Chips for writeup metadata, shared by the index and the detail page. Every
+// field uses the same quiet surface so a row reads as one set rather than a
+// rainbow; colour is reserved for the small difficulty dot.
+const CHIP_BASE =
+  "inline-flex items-center rounded-full border border-black/10 bg-white/50 px-2.5 py-0.5 text-xs leading-5 dark:border-white/15 dark:bg-white/5";
 
 export const WRITEUP_BADGE = {
-  neutral: `${BADGE_BASE} bg-black/5 text-black/70 dark:bg-white/10 dark:text-white/70`,
-  category: `${BADGE_BASE} bg-blue-500/15 text-blue-700 dark:bg-blue-500/20 dark:text-blue-300`,
-  points: `${BADGE_BASE} bg-purple-500/15 text-purple-700 dark:bg-purple-500/20 dark:text-purple-300`,
-  difficulty: {
-    Easy: `${BADGE_BASE} bg-green-500/15 text-green-700 dark:bg-green-500/20 dark:text-green-300`,
-    Medium: `${BADGE_BASE} bg-yellow-500/20 text-yellow-800 dark:bg-yellow-500/20 dark:text-yellow-300`,
-    Hard: `${BADGE_BASE} bg-orange-500/15 text-orange-700 dark:bg-orange-500/20 dark:text-orange-300`,
-    Insane: `${BADGE_BASE} bg-red-500/15 text-red-700 dark:bg-red-500/20 dark:text-red-300`,
-  },
+  neutral: `${CHIP_BASE} gap-1.5 text-black/65 dark:text-white/65`,
+  category: `${CHIP_BASE} gap-1.5 font-medium text-black/80 dark:text-white/80`,
+  points: `${CHIP_BASE} gap-1.5 font-medium tabular-nums text-black/70 dark:text-white/70`,
+  difficulty: `${CHIP_BASE} gap-1.5 font-medium text-black/75 dark:text-white/75`,
+  tag: `${CHIP_BASE} gap-1 text-black/60 dark:text-white/60`,
+} as const;
+
+// Decorative colour for the difficulty chip: a dot rather than a tinted fill.
+export const DIFFICULTY_DOT = {
+  Easy: "bg-green-600 dark:bg-green-400",
+  Medium: "bg-amber-500 dark:bg-amber-400",
+  Hard: "bg-orange-500 dark:bg-orange-400",
+  Insane: "bg-red-600 dark:bg-red-400",
 } as const;

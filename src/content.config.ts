@@ -32,6 +32,11 @@ const projects = defineCollection({
     repoURL: z.string().optional(),
     // Which group on /projects the entry is listed under.
     type: z.enum(["technical", "consulting"]).default("technical"),
+    // Byline: the author's role, the event the work was made for, and an
+    // optional parenthetical detail (track, round) shown on the project page.
+    role: z.string().optional(),
+    event: z.string().optional(),
+    eventDetail: z.string().optional(),
     // Screenshot colocated in the entry folder (`image: "./cover.png"`).
     // Optional: the project list falls back to a generated cover without one.
     image: image().optional(),
@@ -77,7 +82,9 @@ const certifications = defineCollection({
     issuer: z.string(),
     issued: z.coerce.date(),
     expires: z.coerce.date().optional(),
-    scan: image(),
+    // Optional so an entry can be listed before its scan is added; the page
+    // falls back to a dotted placeholder.
+    scan: image().optional(),
     credentialID: z.string().optional(),
     credentialURL: z.url().optional(),
   }),

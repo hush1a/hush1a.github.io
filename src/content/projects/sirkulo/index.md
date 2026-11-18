@@ -2,6 +2,9 @@
 title: "Sirkulo"
 description: "Circular economy mobile app connecting individuals and businesses with recyclers, built at GarudaHacks 6.0."
 date: 2025-07-01
+role: "Back-End Developer"
+event: "GarudaHacks 6.0"
+eventDetail: "Sustainability track"
 repoURL: "https://github.com/SyuraMoons/sirkulo"
 image: "./cover.jpg"
 imageAlt: "Sirkulo's marketplace home, a product page and business analytics"
@@ -21,8 +24,6 @@ stack:
   - area: "Mobile app"
     items: ["React Native", "Expo", "TypeScript"]
 ---
-
-**Back-End Developer** · GarudaHacks 6.0 (Sustainability track)
 
 - Built the backend for a B2B marketplace that connects individuals and businesses with recyclers, turning fashion waste into resources.
 - Designed the TypeScript API on Express and TypeORM, backed by PostgreSQL and Redis, in a layered structure of routes, controllers, services and models.

@@ -16,11 +16,17 @@ interface Props {
   title: string;
   description: string;
   image?: string;
+  /** Keep the page out of search indexes (404 and similar). */
+  noindex?: boolean;
 }
 
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 
-const { title, description, image } = Astro.props;
+const { title, description, image, noindex } = Astro.props;
+
+// Root-relative by default, so it resolves against the site origin rather
+// than whatever nested URL the page happens to live at.
+const ogImage = new URL(image ?? SITE.OG_IMAGE, Astro.site);
 ---
 
 <!-- Global Metadata -->
@@ -44,20 +50,22 @@ const { title, description, image } = Astro.props;
 <title>{title}</title>
 <meta name="title" content={title} />
 <meta name="description" content={description} />
+{noindex && <meta name="robots" content="noindex" />}
 
 <!-- Open Graph / Facebook -->
 <meta property="og:type" content="website" />
 <meta property="og:url" content={Astro.url} />
 <meta property="og:title" content={title} />
 <meta property="og:description" content={description} />
-{image && <meta property="og:image" content={new URL(image, Astro.url)} />}
+<meta property="og:image" content={ogImage} />
+<meta property="og:image:alt" content={title} />
 
 <!-- Twitter -->
-<meta property="twitter:card" content={image ? "summary_large_image" : "summary"} />
+<meta property="twitter:card" content="summary_large_image" />
 <meta property="twitter:url" content={Astro.url} />
 <meta property="twitter:title" content={title} />
 <meta property="twitter:description" content={description} />
-{image && <meta property="twitter:image" content={new URL(image, Astro.url)} />}
+<meta property="twitter:image" content={ogImage} />
 
 <ClientRouter  />
 

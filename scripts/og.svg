@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <defs>
+    <!-- Matches the homepage SonarGrid: a 26px dot lattice at low contrast. -->
+    <pattern id="dots" width="26" height="26" patternUnits="userSpaceOnUse">
+      <circle cx="1.4" cy="1.4" r="1.4" fill="#ffffff" fill-opacity="0.1" />
+    </pattern>
+    <radialGradient id="fade" cx="18%" cy="50%" r="85%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.06" />
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0" />
+    </radialGradient>
+  </defs>
+
+  <rect width="1200" height="630" fill="#1c1917" />
+  <rect width="1200" height="630" fill="url(#dots)" />
+  <rect width="1200" height="630" fill="url(#fade)" />
+
+  <!-- Sonar rings on the right, the same motif as the hero backdrop. -->
+  <g fill="none" stroke="#fb923c">
+    <circle cx="1010" cy="315" r="70" stroke-opacity="0.35" />
+    <circle cx="1010" cy="315" r="130" stroke-opacity="0.22" />
+    <circle cx="1010" cy="315" r="195" stroke-opacity="0.12" />
+    <circle cx="1010" cy="315" r="265" stroke-opacity="0.06" />
+  </g>
+  <circle cx="1010" cy="315" r="7" fill="#fb923c" />
+
+  <g font-family="DejaVu Sans, sans-serif">
+    <text x="100" y="205" fill="#fb923c" font-size="21" font-weight="700" letter-spacing="5">
+      HUSH1A.GITHUB.IO
+    </text>
+    <text x="100" y="320" fill="#fafaf9" font-size="86" font-weight="700">
+      hush's blog
+    </text>
+    <text x="100" y="392" fill="#d6d3d1" font-size="26">
+      Projects, notes, and CTF writeups on
+    </text>
+    <text x="100" y="430" fill="#d6d3d1" font-size="26">
+      cybersecurity and software engineering.
+    </text>
+  </g>
+
+  <rect x="100" y="482" width="92" height="4" rx="2" fill="#f97316" />
+</svg>

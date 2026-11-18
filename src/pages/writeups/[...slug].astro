@@ -3,22 +3,51 @@ import { type CollectionEntry, getCollection, render } from "astro:content";
 import PageLayout from "@layouts/PageLayout.astro";
 import Container from "@components/Container.astro";
 import FormattedDate from "@components/FormattedDate.astro";
-import { readingTime, WRITEUP_BADGE } from "@lib/utils";
+import { cn, readingTime } from "@lib/utils";
 import BackToPrev from "@components/BackToPrev.astro";
+import WriteupMeta from "@components/WriteupMeta.astro";
+import WriteupToc from "@components/WriteupToc.astro";
+import ArticleEnhancements from "@components/ArticleEnhancements.astro";
+
+type Neighbor = { id: string; title: string };
 
 export async function getStaticPaths() {
   const writeups = (await getCollection("writeups"))
     .filter(writeup => !writeup.data.draft)
     .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
-  return writeups.map((writeup) => ({
-    params: { slug: writeup.id },
-    props: writeup,
-  }));
-}
-type Props = CollectionEntry<"writeups">;
 
-const writeup = Astro.props;
-const { Content } = await render(writeup);
+  // Navigate within the same CTF; a single-entry CTF has no neighbours.
+  const groups = new Map<string, typeof writeups>();
+  for (const writeup of writeups) {
+    const group = groups.get(writeup.data.ctf) ?? [];
+    group.push(writeup);
+    groups.set(writeup.data.ctf, group);
+  }
+
+  return writeups.map((writeup) => {
+    const group = groups.get(writeup.data.ctf) ?? [writeup];
+    const index = group.indexOf(writeup);
+    const neighbor = (offset: number): Neighbor | null => {
+      if (group.length < 2) return null;
+      const entry = group[(index + offset + group.length) % group.length];
+      return { id: entry.id, title: entry.data.title };
+    };
+
+    return {
+      params: { slug: writeup.id },
+      props: { writeup, prev: neighbor(-1), next: neighbor(1) },
+    };
+  });
+}
+
+type Props = {
+  writeup: CollectionEntry<"writeups">;
+  prev: Neighbor | null;
+  next: Neighbor | null;
+};
+
+const { writeup, prev, next } = Astro.props;
+const { Content, headings } = await render(writeup);
 ---
 
 <PageLayout title={writeup.data.title} description={writeup.data.description}>
@@ -28,45 +57,75 @@ const { Content } = await render(writeup);
         Back to writeups
       </BackToPrev>
     </div>
-    <div class="space-y-1 my-10">
+    <div class="space-y-3 my-10">
       <div class="animate flex items-center gap-1.5">
-        <div class="font-base text-sm">
+        <div class="text-sm">
           <FormattedDate date={writeup.data.date} />
         </div>
         &bull;
-        <div class="font-base text-sm">
+        <div class="text-sm">
           {readingTime(writeup.body)}
         </div>
       </div>
       <h1 class="animate text-2xl font-semibold tracking-tight text-black dark:text-white">
         {writeup.data.title}
       </h1>
-      <div class="animate flex flex-wrap gap-2 pt-3">
-        <span class={WRITEUP_BADGE.neutral}>
-          {writeup.data.ctf}
-        </span>
-        <span class={WRITEUP_BADGE.category}>
-          {writeup.data.category}
-        </span>
-        {writeup.data.difficulty && (
-          <span class={WRITEUP_BADGE.difficulty[writeup.data.difficulty]}>
-            {writeup.data.difficulty}
-          </span>
-        )}
-        {writeup.data.points && (
-          <span class={WRITEUP_BADGE.points}>
-            {writeup.data.points} pts
-          </span>
-        )}
-        {writeup.data.solves && (
-          <span class={WRITEUP_BADGE.neutral}>
-            {writeup.data.solves} solves
-          </span>
-        )}
-      </div>
+      <p class="animate max-w-2xl leading-relaxed">
+        {writeup.data.description}
+      </p>
+      <WriteupMeta data={writeup.data} showCtf class="animate pt-1" />
     </div>
-    <article class="animate">
-      <Content />
-    </article>
+
+    <div class="lg:grid lg:grid-cols-[minmax(0,1fr)_15rem] lg:gap-12 lg:items-start">
+      {/* First in the DOM so it lands above the article on mobile; the grid
+           moves it into the right rail from `lg` up. */}
+      <WriteupToc
+        headings={headings}
+        class="animate lg:col-start-2 lg:row-start-1"
+      />
+      <article class="animate lg:col-start-1 lg:row-start-1">
+        <Content />
+      </article>
+    </div>
+
+    <ArticleEnhancements />
+
+    {(prev || next) && (
+      <nav
+        aria-label="Writeup navigation"
+        class="animate mt-12 grid gap-4 border-t border-black/10 pt-6 dark:border-white/15 sm:grid-cols-2"
+      >
+        {prev && (
+          <a
+            href={`/writeups/${prev.id}`}
+            class="group rounded-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-black/60 dark:focus-visible:outline-white/70"
+          >
+            <div class="text-xs uppercase tracking-wider opacity-75">
+              Previous writeup
+            </div>
+            <div class="font-semibold text-black transition-colors duration-300 group-hover:text-black dark:text-white dark:group-hover:text-white">
+              {prev.title}
+            </div>
+          </a>
+        )}
+        {next && (
+          <a
+            href={`/writeups/${next.id}`}
+            class={cn(
+              "group rounded-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-black/60 dark:focus-visible:outline-white/70",
+              !prev && "sm:col-start-2",
+              "sm:text-right",
+            )}
+          >
+            <div class="text-xs uppercase tracking-wider opacity-75">
+              Next writeup
+            </div>
+            <div class="font-semibold text-black transition-colors duration-300 group-hover:text-black dark:text-white dark:group-hover:text-white">
+              {next.title}
+            </div>
+          </a>
+        )}
+      </nav>
+    )}
   </Container>
 </PageLayout>

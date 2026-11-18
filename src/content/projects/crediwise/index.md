@@ -2,6 +2,9 @@
 title: "CrediWise"
 description: "Two-way credit safety app built at GarudaHacks 7.0, pairing a native iOS client with a Python backend."
 date: 2026-07-01
+role: "Back-End Developer"
+event: "GarudaHacks 7.0"
+eventDetail: "Safety track"
 demoURL: "https://www.youtube.com/watch?v=vMonJ-iX4ZI"
 repoURL: "https://github.com/Shazaw/CrediWise"
 image: "./cover.jpg"
@@ -32,8 +35,6 @@ stack:
   - area: "iOS app"
     items: ["Swift", "SwiftUI", "Swift Charts"]
 ---
-
-**Back-End Developer** · GarudaHacks 7.0 (Safety track)
 
 - Built most of the backend for a credit safety engine for thin-file, informal-income and gig-worker users in Indonesia. It answers not only whether a user is creditworthy, but whether a loan is worthy of the user.
 - Turned uploaded bank statements, CSVs and receipt images into verified transactions through a Celery pipeline: PDF and CSV parsing, Tesseract OCR, duplicate detection and a trust layer that scores how reliable the data is.

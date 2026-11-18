@@ -4,24 +4,60 @@ import { Image } from "astro:assets";
 import PageLayout from "@layouts/PageLayout.astro";
 import Container from "@components/Container.astro";
 import FormattedDate from "@components/FormattedDate.astro";
-import { readingTime } from "@lib/utils";
+import { cn, readingTime } from "@lib/utils";
 import BackToPrev from "@components/BackToPrev.astro";
 import Link from "@components/Link.astro";
 import TechStack from "@components/TechStack.astro";
+import ArticleEnhancements from "@components/ArticleEnhancements.astro";
+
+type Neighbor = { id: string; title: string };
 
 export async function getStaticPaths() {
   const projects = (await getCollection("projects"))
-    .filter(post => !post.data.draft)
+    .filter(project => !project.data.draft)
     .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
-  return projects.map((project) => ({
-    params: { slug: project.id },
-    props: project,
-  }));
-}
-type Props = CollectionEntry<"projects">;
 
-const project = Astro.props;
+  // Previous/next travel within the same `type` group so a technical build
+  // never links straight into a consulting case, then wrap at the edges.
+  const groups = new Map<string, typeof projects>();
+  for (const project of projects) {
+    const group = groups.get(project.data.type) ?? [];
+    group.push(project);
+    groups.set(project.data.type, group);
+  }
+
+  return projects.map((project) => {
+    const group = groups.get(project.data.type) ?? [project];
+    const index = group.indexOf(project);
+    const neighbor = (offset: number): Neighbor | null => {
+      if (group.length < 2) return null;
+      const entry = group[(index + offset + group.length) % group.length];
+      return { id: entry.id, title: entry.data.title };
+    };
+
+    return {
+      params: { slug: project.id },
+      props: { project, prev: neighbor(-1), next: neighbor(1) },
+    };
+  });
+}
+
+type Props = {
+  project: CollectionEntry<"projects">;
+  prev: Neighbor | null;
+  next: Neighbor | null;
+};
+
+const { project, prev, next } = Astro.props;
 const { Content } = await render(project);
+
+const { role, event, eventDetail } = project.data;
+// `Back-End Developer at GarudaHacks 7.0 (Safety track)`; either half may be
+// absent, so the sentence degrades to whichever field exists.
+const bylineBase = role && event ? `${role} at ${event}` : (role ?? event);
+const byline = [bylineBase, eventDetail && `(${eventDetail})`]
+  .filter(Boolean)
+  .join(" ");
 
 // The single detail view, so everything the entry defines is rendered here.
 const cover = project.data.image;
@@ -31,7 +67,7 @@ const coverWidths = cover
   : [];
 ---
 
-<PageLayout title={project.data.title} description={project.data.description}>
+<PageLayout title={project.data.title} description={project.data.description} image={cover?.src}>
   <Container>
     <div class="animate">
       <BackToPrev href="/projects">
@@ -40,17 +76,22 @@ const coverWidths = cover
     </div>
     <div class="space-y-3 my-10">
       <div class="animate flex items-center gap-1.5">
-        <div class="font-base text-sm">
+        <div class="text-sm">
           <FormattedDate date={project.data.date} />
         </div>
         &bull;
-        <div class="font-base text-sm">
+        <div class="text-sm">
           {readingTime(project.body)}
         </div>
       </div>
       <h1 class="animate text-2xl font-semibold tracking-tight text-black dark:text-white">
         {project.data.title}
       </h1>
+      {byline && (
+        <p class="animate text-sm opacity-75">
+          {byline}
+        </p>
+      )}
       <p class="animate max-w-2xl leading-relaxed">
         {project.data.description}
       </p>
@@ -91,6 +132,7 @@ const coverWidths = cover
     <article class="animate">
       <Content />
     </article>
+    <ArticleEnhancements />
     {/* Remaining images, after the body. The cover is shown above the stack. */}
     {project.data.gallery.length > 0 && (
       <div class="animate mt-12 space-y-10">
@@ -109,6 +151,43 @@ const coverWidths = cover
           </figure>
         ))}
       </div>
+    )}
+    {(prev || next) && (
+      <nav
+        aria-label="Project navigation"
+        class="animate mt-12 grid gap-4 border-t border-black/10 pt-6 dark:border-white/15 sm:grid-cols-2"
+      >
+        {prev && (
+          <a
+            href={`/projects/${prev.id}`}
+            class="group rounded-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-black/60 dark:focus-visible:outline-white/70"
+          >
+            <div class="text-xs uppercase tracking-wider opacity-75">
+              Previous project
+            </div>
+            <div class="font-semibold text-black transition-colors duration-300 group-hover:text-black dark:text-white dark:group-hover:text-white">
+              {prev.title}
+            </div>
+          </a>
+        )}
+        {next && (
+          <a
+            href={`/projects/${next.id}`}
+            class={cn(
+              "group rounded-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-black/60 dark:focus-visible:outline-white/70",
+              !prev && "sm:col-start-2",
+              "sm:text-right",
+            )}
+          >
+            <div class="text-xs uppercase tracking-wider opacity-75">
+              Next project
+            </div>
+            <div class="font-semibold text-black transition-colors duration-300 group-hover:text-black dark:text-white dark:group-hover:text-white">
+              {next.title}
+            </div>
+          </a>
+        )}
+      </nav>
     )}
   </Container>
 </PageLayout>

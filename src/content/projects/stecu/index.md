@@ -2,6 +2,8 @@
 title: "STeCU"
 description: "Streamlining Tech for Client Usability — a full-stack project rate estimator for OmahTI's Project Management division."
 date: 2025-07-01
+role: "Front-End Developer & Team Lead"
+event: "OmahTI Internship Month"
 demoURL: "https://dinonaget.vercel.app"
 repoURL: "https://github.com/yusufimantaka/dinonaget"
 image: "./cover.jpg"
@@ -26,8 +28,6 @@ stack:
   - area: "Backend"
     items: ["Node.js", "Express", "Google Gemini", "Google Sheets"]
 ---
-
-**Front-End Developer & Team Lead** · OmahTI Internship Month
 
 - Led a team of 5 building a full-stack web app to solve a real problem faced by OmahTI's Project Management division: prospective clients had no way to gauge a project's cost before reaching out.
 - Built the frontend in React and Tailwind CSS: a homepage introducing OmahTI, its divisions and past projects, and a guided multi-step registration form with a built-in rate card estimator.

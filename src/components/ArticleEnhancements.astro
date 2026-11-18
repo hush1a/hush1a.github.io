@@ -1,0 +1,106 @@
+---
+// Progressive enhancement shared by article pages (blog, projects, writeups):
+// a Copy button on every code block and a click-to-zoom lightbox for body
+// images. Both are pure additions — the article reads fine without them.
+//
+// Scripts bind on `astro:page-load` because ClientRouter swaps pages without
+// re-running module scripts. Copy buttons carry a `data-copy-ready` guard and
+// listeners on the dialog die with its DOM, so navigating back and forth
+// never stacks duplicates.
+---
+
+<dialog
+  data-lightbox
+  aria-label="Image preview"
+  class="relative m-auto max-h-[90dvh] max-w-[95vw] rounded-xl border border-black/15 bg-stone-100 p-2 shadow-2xl backdrop:bg-black/70 dark:border-white/20 dark:bg-stone-900"
+>
+  <button
+    type="button"
+    data-lightbox-close
+    aria-label="Close image"
+    class="absolute right-3 top-3 z-10 flex size-9 items-center justify-center rounded-full bg-black/60 text-white transition-colors duration-300 hover:bg-black/80 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+  >
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      aria-hidden="true"
+      class="size-5 stroke-2 fill-none stroke-current"
+    >
+      <line x1="6" y1="6" x2="18" y2="18" />
+      <line x1="18" y1="6" x2="6" y2="18" />
+    </svg>
+  </button>
+  <img
+    data-lightbox-image
+    alt=""
+    class="max-h-[85dvh] w-auto max-w-full rounded-lg object-contain"
+  />
+</dialog>
+
+<script>
+  const COPY_BUTTON =
+    "pointer-events-auto absolute right-2 top-2 z-10 rounded-sm border border-white/20 bg-stone-900/80 px-2 py-1 font-sans text-xs text-white opacity-70 transition-opacity duration-300 hover:opacity-100 focus-visible:opacity-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white";
+
+  // Adds a Copy button to each `article pre` that doesn't have one yet.
+  function addCopyButtons() {
+    document.querySelectorAll<HTMLPreElement>("article pre").forEach((pre) => {
+      if (pre.dataset.copyReady) return;
+      pre.dataset.copyReady = "true";
+      pre.classList.add("relative");
+
+      const button = document.createElement("button");
+      button.type = "button";
+      button.textContent = "Copy";
+      button.className = COPY_BUTTON;
+
+      button.addEventListener("click", async () => {
+        const code = pre.querySelector("code");
+        try {
+          await navigator.clipboard.writeText(code?.innerText ?? pre.innerText);
+          button.textContent = "Copied";
+        } catch {
+          button.textContent = "Copy failed";
+        }
+        window.setTimeout(() => {
+          button.textContent = "Copy";
+        }, 2000);
+      });
+
+      pre.appendChild(button);
+    });
+  }
+
+  // Delegated once per tab: resolves the dialog currently in the DOM, so it
+  // keeps working after ClientRouter swaps without adding another listener.
+  document.addEventListener("click", (event) => {
+    if (!window.matchMedia("(pointer: fine)").matches) return;
+
+    const target = event.target as Element | null;
+    const image = target?.closest<HTMLImageElement>("article img");
+    if (!image || image.closest("a")) return;
+
+    const dialog = document.querySelector<HTMLDialogElement>("[data-lightbox]");
+    const preview = dialog?.querySelector<HTMLImageElement>("[data-lightbox-image]");
+    if (!dialog || !preview || dialog.open) return;
+
+    preview.src = image.currentSrc || image.src;
+    preview.alt = image.alt;
+    dialog.showModal();
+  });
+
+  document.addEventListener("astro:page-load", () => {
+    addCopyButtons();
+
+    const dialog = document.querySelector<HTMLDialogElement>("[data-lightbox]");
+    if (!dialog || dialog.dataset.ready) return;
+    dialog.dataset.ready = "true";
+
+    // Backdrop clicks target the dialog itself; clicks inside hit a child.
+    dialog.addEventListener("click", (event) => {
+      if (event.target === dialog) dialog.close();
+    });
+    dialog.querySelector("[data-lightbox-close]")?.addEventListener("click", () => {
+      dialog.close();
+    });
+  });
+</script>

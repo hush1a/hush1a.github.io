@@ -1,0 +1,44 @@
+---
+// Challenge metadata, rendered the same way on the writeups index and the
+// writeup page. Deliberately link-free so it is safe to nest inside a card
+// anchor.
+import type { CollectionEntry } from "astro:content";
+import { cn, DIFFICULTY_DOT, WRITEUP_BADGE } from "@lib/utils";
+
+type Props = {
+  data: CollectionEntry<"writeups">["data"];
+  /** Show the CTF name (off inside the index, where the section heading has it). */
+  showCtf?: boolean;
+  class?: string;
+};
+
+const { data, showCtf = false, class: className } = Astro.props;
+---
+
+<div class={cn("flex flex-wrap items-center gap-2", className)}>
+  {showCtf && data.ctf && (
+    <span class={WRITEUP_BADGE.neutral}>{data.ctf}</span>
+  )}
+  <span class={WRITEUP_BADGE.category}>{data.category}</span>
+  {data.difficulty !== undefined && (
+    <span class={WRITEUP_BADGE.difficulty}>
+      <span
+        aria-hidden="true"
+        class={cn("size-1.5 shrink-0 rounded-full", DIFFICULTY_DOT[data.difficulty])}
+      ></span>
+      {data.difficulty}
+    </span>
+  )}
+  {data.points !== undefined && (
+    <span class={WRITEUP_BADGE.points}>{data.points} pts</span>
+  )}
+  {data.solves !== undefined && (
+    <span class={WRITEUP_BADGE.neutral}>{data.solves} solves</span>
+  )}
+  {data.tags?.map(tag => (
+    <span class={WRITEUP_BADGE.tag}>
+      <span class="text-black/40 dark:text-white/40" aria-hidden="true">#</span>
+      {tag}
+    </span>
+  ))}
+</div>

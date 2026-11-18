@@ -3,6 +3,7 @@ import type { Site, Metadata, Socials, Skills, Highlights } from "@types";
 export const SITE: Site = {
   NAME: "hush's blog",
   EMAIL: "bayuputraibana@gmail.com",
+  OG_IMAGE: "/og.png",
   NUM_POSTS_ON_HOMEPAGE: 3,
   NUM_WORKS_ON_HOMEPAGE: 2,
   NUM_PROJECTS_ON_HOMEPAGE: 3,

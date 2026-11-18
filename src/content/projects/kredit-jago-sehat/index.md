@@ -3,6 +3,9 @@ title: "Kredit Jago Sehat"
 description: "Semifinalist proposal for Bank Jago's BLCC case: a financial-health-first credit product that helps thin-file borrowers become credit-ready."
 date: 2026-06-15
 type: "consulting"
+role: "Case Team Member"
+event: "BLCC"
+eventDetail: "Semifinalist, Bank Jago case"
 image: "./cover.jpg"
 gallery:
   - src: "./mockup-dashboard.jpg"
@@ -16,8 +19,6 @@ gallery:
   - src: "./roadmap.jpg"
     alt: "Integrated three-year implementation timeline with phase gates"
 ---
-
-**Case Team Member** · BLCC (Semifinalist, Bank Jago case)
 
 **Methods:** Problem framing · Product design · Credit risk framework · Financial modeling (NPV, IRR, NPL sensitivity) · Regulatory analysis (POJK 29/2024, PDP Law)
 
