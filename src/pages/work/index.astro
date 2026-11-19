@@ -2,16 +2,23 @@
 import { getCollection, render } from "astro:content";
 import PageLayout from "@layouts/PageLayout.astro";
 import Container from "@components/Container.astro";
+import WorkCard from "@components/WorkCard.astro";
+import ArticleEnhancements from "@components/ArticleEnhancements.astro";
 import { dateRange } from "@lib/utils";
 import { WORK } from "@consts";
 
+// Experience page: a CV-style timeline, newest first. Roles that are still
+// running read "Present" in the date column and carry a pill in the card.
 const collection = (await getCollection("work"))
   .sort((a, b) => new Date(b.data.dateStart).valueOf() - new Date(a.data.dateStart).valueOf());
 
 const work = await Promise.all(
   collection.map(async (item) => {
     const { Content } = await render(item);
-    return { ...item, Content };
+    // The timeline column is narrow, so the range is stacked start/end
+    // rather than left to wrap.
+    const [periodStart, periodEnd] = dateRange(item.data.dateStart, item.data.dateEnd).split(" – ");
+    return { ...item, Content, periodStart, periodEnd };
   })
 );
 ---
@@ -19,34 +26,68 @@ const work = await Promise.all(
 <PageLayout title={WORK.TITLE} description={WORK.DESCRIPTION}>
   <Container>
     <div class="space-y-10">
-      <h1 class="animate font-semibold text-black dark:text-white">
-        Work
-      </h1>
+      <div class="animate space-y-1">
+        <h1 class="font-semibold text-black dark:text-white">
+          {WORK.TITLE}
+        </h1>
+        <p class="text-sm opacity-75">
+          {WORK.DESCRIPTION}
+        </p>
+      </div>
+
       {work.length === 0 && (
         <p class="animate text-sm opacity-75">
           Nothing listed here yet.
         </p>
       )}
-      <ul class="flex flex-col space-y-4">
-        { 
-          work.map(entry => (
-            <li class="animate">
-              <div class="text-sm opacity-75">
+
+      <ol class="space-y-8 md:space-y-10">
+        {work.map(entry => (
+          <li class="timeline-item animate grid grid-cols-1 gap-y-2 md:grid-cols-[6.5rem_auto_minmax(0,1fr)] md:gap-x-6 md:gap-y-0">
+            {/* Date column. Hidden below `md`, where the date sits above the
+                card instead and the rail would take too much width. */}
+            <div class="hidden pt-6 text-right text-xs leading-relaxed tabular-nums opacity-75 md:block">
+              <div>{entry.periodStart}</div>
+              {entry.periodEnd && <div>– {entry.periodEnd}</div>}
+            </div>
+
+            <div class="relative hidden md:flex md:justify-center">
+              <span
+                class="timeline-line absolute left-1/2 top-0 -bottom-8 w-px -translate-x-1/2 bg-black/10 md:-bottom-10 dark:bg-white/15"
+                aria-hidden="true"
+              ></span>
+              <span
+                class="relative mt-6 size-2.5 shrink-0 rounded-full border-2 border-stone-100 bg-black/30 dark:border-stone-900 dark:bg-white/40"
+                aria-hidden="true"
+              ></span>
+            </div>
+
+            <div class="min-w-0 md:pb-1">
+              <div class="mb-2 text-xs tabular-nums opacity-75 md:hidden">
                 {dateRange(entry.data.dateStart, entry.data.dateEnd)}
               </div>
-              <div class="font-semibold text-black dark:text-white">
-                {entry.data.company}
-              </div>
-              <div class="text-sm opacity-75">
-                {entry.data.role}
-              </div>
-              <article>
+              <WorkCard entry={entry} heading="h2">
                 <entry.Content />
-              </article>
-            </li>
-          ))
-        }
-      </ul>
+              </WorkCard>
+            </div>
+          </li>
+        ))}
+      </ol>
     </div>
   </Container>
+  <ArticleEnhancements />
 </PageLayout>
+
+<style>
+  /* The rail reads as one continuous line through the gaps between entries:
+     each segment starts at the top of its row (or at the dot for the first
+     one) and reaches the next row, while the last one stops at its dot. */
+  .timeline-item:first-child .timeline-line {
+    top: 1.5rem;
+  }
+
+  .timeline-item:last-child .timeline-line {
+    bottom: auto;
+    height: 1.5rem;
+  }
+</style>

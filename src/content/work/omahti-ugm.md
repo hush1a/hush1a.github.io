@@ -3,6 +3,8 @@ company: "Organisasi Mahasiswa Ahli Teknologi Informasi UGM (OmahTI UGM)"
 role: "Cybersecurity Division Senior Staff"
 dateStart: 2024-12-01
 dateEnd: "Present"
+summary: "Security training and CTF work in the cybersecurity division."
+tags: ["Cybersecurity", "CTF"]
 ---
 
 - Completed 8+ comprehensive IT security training classes, gaining in-depth knowledge of cybersecurity fundamentals.

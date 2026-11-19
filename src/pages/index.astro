@@ -1,10 +1,11 @@
 ---
-import { getCollection, render } from "astro:content";
+import { getCollection } from "astro:content";
 import Container from "@components/Container.astro";
 import PageLayout from "@layouts/PageLayout.astro";
 import ArrowCard from "@components/ArrowCard.astro";
 import SectionHeading from "@components/SectionHeading.astro";
 import ProjectCard from "@components/ProjectCard.astro";
+import WorkCard from "@components/WorkCard.astro";
 import ContactCTA from "@components/ContactCTA.astro";
 import SocialLinks from "@components/SocialLinks.astro";
 import AnimatedButton from "@components/AnimatedButton.astro";
@@ -12,7 +13,6 @@ import TerminalCard from "@components/TerminalCard.astro";
 import SonarGrid from "@components/SonarGrid.astro";
 import TechMarquee from "@components/TechMarquee.astro";
 import AboutHighlights from "@components/AboutHighlights.astro";
-import { dateRange } from "@lib/utils";
 import { SITE, HOME, ABOUT } from "@consts";
 
 const blog = (await getCollection("blog"))
@@ -25,16 +25,9 @@ const projects = (await getCollection("projects"))
   .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
   .slice(0,SITE.NUM_PROJECTS_ON_HOMEPAGE);
 
-const allwork = (await getCollection("work"))
+const work = (await getCollection("work"))
   .sort((a, b) => new Date(b.data.dateStart).valueOf() - new Date(a.data.dateStart).valueOf())
   .slice(0,SITE.NUM_WORKS_ON_HOMEPAGE);
-
-const work = await Promise.all(
-  allwork.map(async (item) => {
-    const { Content } = await render(item);
-    return { ...item, Content };
-  })
-);
 ---
 
 <PageLayout title={HOME.TITLE} description={HOME.DESCRIPTION}>
@@ -142,21 +135,10 @@ const work = await Promise.all(
     {work.length > 0 && (
       <section class="animate space-y-6 py-12">
         <SectionHeading title="Experience" href="/work" linkLabel="See all experience" />
-        <ul class="flex flex-col space-y-4">
+        <ul class="grid grid-cols-1 gap-4 md:grid-cols-2">
           {work.map(entry => (
-            <li>
-              <div class="text-sm opacity-75">
-                {dateRange(entry.data.dateStart, entry.data.dateEnd)}
-              </div>
-              <div class="font-semibold text-black dark:text-white">
-                {entry.data.company}
-              </div>
-              <div class="text-sm opacity-75">
-                {entry.data.role}
-              </div>
-              <article>
-                <entry.Content />
-              </article>
+            <li class="h-full">
+              <WorkCard entry={entry} variant="compact" />
             </li>
           ))}
         </ul>

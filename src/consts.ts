@@ -30,8 +30,8 @@ export const BLOG: Metadata = {
 };
 
 export const WORK: Metadata = {
-  TITLE: "Work",
-  DESCRIPTION: "Where I have worked and what I have done.",
+  TITLE: "Experience",
+  DESCRIPTION: "Roles, organizations, and teams I have been part of.",
 };
 
 export const PROJECTS: Metadata = {

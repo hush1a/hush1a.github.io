@@ -43,29 +43,28 @@ export default function ProjectShowcase({ groups }: Props) {
 
 function ProjectList({ groups }: { groups: ShowcaseGroup[] }) {
   const [hoveredId, setHoveredId] = useState<string | null>(null);
-  const [canHover, setCanHover] = useState(false);
-
-  // The floating preview only makes sense with a real pointer; touch
-  // devices get the inline thumbnails instead.
-  useEffect(() => {
-    const mq = window.matchMedia("(hover: hover) and (pointer: fine)");
-    setCanHover(mq.matches);
-    const onChange = (e: MediaQueryListEvent) => setCanHover(e.matches);
-    mq.addEventListener("change", onChange);
-    return () => mq.removeEventListener("change", onChange);
-  }, []);
+  // The preview is portalled; createPortal has no server equivalent, so it
+  // waits for the first client render.
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
 
   const x = useMotionValue(0);
   const y = useMotionValue(0);
   const springX = useSpring(x, { stiffness: 300, damping: 30, mass: 0.6 });
   const springY = useSpring(y, { stiffness: 300, damping: 30, mass: 0.6 });
 
+  // The pointer type is read from the event rather than from
+  // `matchMedia("(hover: hover) and (pointer: fine)")`: that query reports
+  // false in environments that do have a mouse (headless Chrome, some VMs and
+  // remote desktops, device emulation), which silently dropped the preview.
   function onPointerMove(e: PointerEvent) {
+    if (e.pointerType !== "mouse") return;
     x.set(e.clientX);
     y.set(e.clientY);
   }
 
   function onRowEnter(e: PointerEvent, id: string) {
+    if (e.pointerType !== "mouse") return;
     if (hoveredId === null) {
       springX.jump(e.clientX);
       springY.jump(e.clientY);
@@ -76,7 +75,7 @@ function ProjectList({ groups }: { groups: ShowcaseGroup[] }) {
   const hovered = groups.flatMap(g => g.projects).find(p => p.id === hoveredId);
 
   return (
-    <div className="space-y-16" onPointerMove={canHover ? onPointerMove : undefined}>
+    <div className="space-y-16" onPointerMove={onPointerMove}>
       {groups.map(group => (
         <section key={group.id} aria-labelledby={`group-${group.id}`} className="space-y-4">
           <div className="flex flex-wrap gap-y-2 items-baseline justify-between">
@@ -133,9 +132,9 @@ function ProjectList({ groups }: { groups: ShowcaseGroup[] }) {
 
       {/* Portalled to <body>: the page's `.animate` wrapper keeps a CSS
           `translate`, which would make it the containing block for a fixed
-          child and offset the preview from the cursor. canHover is only set
-          after mount, so this never runs during SSR. */}
-      {canHover && createPortal(
+          child and offset the preview from the cursor. `mounted` is only
+          true after the first client render, so this never runs during SSR. */}
+      {mounted && createPortal(
         <motion.div
           aria-hidden="true"
           className="pointer-events-none fixed top-0 left-0 z-40 w-72 aspect-4/3"

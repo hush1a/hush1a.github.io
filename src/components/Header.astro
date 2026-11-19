@@ -11,7 +11,7 @@ const hasPosts = (await getCollection("blog")).some(post => !post.data.draft);
 const NAV = [
   ...(hasPosts ? [{ href: "/blog", label: "blog" }] : []),
   { href: "/writeups", label: "writeups" },
-  { href: "/work", label: "work" },
+  { href: "/work", label: "experience" },
   { href: "/projects", label: "projects" },
   { href: "/certifications", label: "certs" },
 ];

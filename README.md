@@ -22,7 +22,14 @@ Content lives in `src/content/<collection>/`, one folder per entry with an `inde
 - **`blog`** — `title`, `description`, `date`, optional `draft`
 - **`projects`** — the above plus optional `demoURL`, `repoURL`, and the byline fields `role`, `event`, `eventDetail`
 - **`writeups`** — the above plus required `ctf` and `category`, optional `difficulty` (`Easy`/`Medium`/`Hard`/`Insane`), `points`, `solves`, `tags` (tags are shown on the index and detail pages)
-- **`work`** — `company`, `role`, `dateStart`, `dateEnd` (flat `.md` files, no folder)
+- **`work`** — `company`, `role`, `dateStart`, `dateEnd` (flat `.md` files, no folder), optional `summary` (homepage one-liner), `tags` (skills), `logo` (emblem beside the company), and `gallery[]` (team/event photos, each with `src` and `alt`). Put work images in `src/content/work/images/` and reference them relatively:
+
+  ```yaml
+  logo: "./images/bem-ugm.png"
+  gallery:
+    - src: "./images/bem-ugm-team.jpg"
+      alt: "Security team after the assessment handover"
+  ```
 
 Set `draft: true` to keep an entry out of the build.
 

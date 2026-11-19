@@ -13,11 +13,20 @@ const blog = defineCollection({
 
 const work = defineCollection({
   loader: glob({ pattern: "**/*.{md,mdx}", base: "./src/content/work" }),
-  schema: z.object({
+  schema: ({ image }) => z.object({
     company: z.string(),
     role: z.string(),
     dateStart: z.coerce.date(),
+    // "Present" keeps an ongoing role as a string rather than a date.
     dateEnd: z.union([z.coerce.date(), z.string()]),
+    // One line for the homepage preview, where the Markdown body is omitted.
+    summary: z.string().optional(),
+    // Skills shown as chips on the experience page.
+    tags: z.array(z.string()).default([]),
+    // Square-ish emblem shown beside the company name (`./images/logo.png`).
+    logo: image().optional(),
+    // Team or event photos shown under the entry, each with alt text.
+    gallery: z.array(z.object({ src: image(), alt: z.string() })).default([]),
   }),
 });
 

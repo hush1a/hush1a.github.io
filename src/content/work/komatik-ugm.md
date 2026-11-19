@@ -3,6 +3,8 @@ company: "Komunitas Mahasiswa Teknologi Informasi dan Komunikasi UGM (KOMATIK)"
 role: "Vice Head of Cybersecurity (ASGama)"
 dateStart: 2024-11-01
 dateEnd: "Present"
+summary: "Led the cybersecurity division, mentored juniors, and represented UGM at GEMASTIK 2025."
+tags: ["CTF", "GEMASTIK", "Mentoring"]
 ---
 
 - Qualified for GEMASTIK 2025 to represent UGM by competing in Liga KOMATIK.

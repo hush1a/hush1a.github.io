@@ -1,0 +1,161 @@
+---
+// One experience entry. `full` is the timeline card on /work: logo, role
+// details, skill chips, the rendered Markdown body, and a photo strip.
+// `compact` is the homepage preview, which trades the bullets and media for
+// a single summary line.
+//
+// The date is left to the page on `full`, because it sits in the timeline
+// rail rather than inside the card.
+import type { CollectionEntry } from "astro:content";
+import { getImage, Image } from "astro:assets";
+import GradientCard from "@components/GradientCard.astro";
+import { cn, dateRange, TAG_CHIP } from "@lib/utils";
+
+type Props = {
+  entry: CollectionEntry<"work">;
+  variant?: "full" | "compact";
+  /** Card title level: h2 under the /work page title, h3 under a homepage section. */
+  heading?: "h2" | "h3";
+  class?: string;
+};
+
+const { entry, variant = "full", heading = "h3", class: className } = Astro.props;
+const { company, role, dateStart, dateEnd, summary, tags, logo, gallery } = entry.data;
+
+// `dateEnd` is a coerced date normally, and the literal "Present" while the
+// role is ongoing.
+const isCurrent = typeof dateEnd === "string";
+const Heading = heading;
+
+// Never ask the image pipeline for a width larger than the source, or the
+// build warns and the variant is wasted.
+const fitWidths = (candidates: number[], source: number) => {
+  const fits = candidates.filter(width => width <= source);
+  return fits.length > 0 ? fits : [source];
+};
+
+// Thumbnails are cropped to 12rem, so the lightbox gets its own larger
+// rendition instead of upscaling the small variant the grid picked.
+const photos = variant === "full" && gallery.length > 0
+  ? await Promise.all(
+    gallery.map(async (photo) => ({
+      ...photo,
+      widths: fitWidths([192, 384], photo.src.width),
+      preview: (
+        await getImage({
+          src: photo.src,
+          width: Math.min(photo.src.width, 1200),
+          format: "webp",
+        })
+      ).src,
+    })),
+  )
+  : [];
+---
+
+<GradientCard class={cn("h-full", className)}>
+  <div
+    class={cn(
+      "flex h-full flex-col",
+      variant === "compact" ? "gap-1.5 p-5" : "gap-3 p-6",
+    )}
+  >
+    {variant === "compact" && (
+      <div class="text-xs tabular-nums opacity-70">
+        {dateRange(dateStart, dateEnd)}
+      </div>
+    )}
+
+    <div class="flex flex-wrap items-start justify-between gap-x-4 gap-y-1.5">
+      <div class="flex items-start gap-3">
+        {logo && variant === "full" && (
+          // White tile in both themes: org emblems are drawn for light
+          // backgrounds, and object-contain keeps non-square ones intact.
+          <div class="size-12 shrink-0 rounded-lg border border-black/10 bg-white p-1.5 dark:border-white/15 dark:bg-stone-200">
+            {logo.format === "svg" ? (
+              // SVG emblems can't be re-encoded, so they pass through as-is.
+              <img
+                src={logo.src}
+                alt=""
+                width={logo.width}
+                height={logo.height}
+                loading="lazy"
+                decoding="async"
+                draggable="false"
+                class="size-full object-contain"
+              />
+            ) : (
+              <Image
+                src={logo}
+                alt=""
+                widths={fitWidths([48, 96], logo.width)}
+                sizes="48px"
+                format="webp"
+                loading="lazy"
+                decoding="async"
+                draggable="false"
+                class="size-full object-contain"
+              />
+            )}
+          </div>
+        )}
+        <div class="space-y-0.5">
+          <Heading class="font-semibold leading-snug text-black dark:text-white">
+            {company}
+          </Heading>
+          <p class="text-sm leading-snug opacity-75">
+            {role}
+          </p>
+        </div>
+      </div>
+      {isCurrent && (
+        <span class="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-orange-500/30 bg-orange-500/10 px-2 py-0.5 text-xs font-medium text-orange-700 dark:border-orange-300/30 dark:bg-orange-300/10 dark:text-orange-200">
+          <span
+            aria-hidden="true"
+            class="size-1.5 rounded-full bg-orange-500 dark:bg-orange-300"
+          ></span>
+          Present
+        </span>
+      )}
+    </div>
+
+    {variant === "compact"
+      ? summary && <p class="text-sm leading-relaxed">{summary}</p>
+      : (
+        <>
+          {tags.length > 0 && (
+            <ul class="flex flex-wrap gap-1.5">
+              {tags.map(tag => (
+                <li class={TAG_CHIP}>{tag}</li>
+              ))}
+            </ul>
+          )}
+          <article class="prose-flush">
+            <slot />
+          </article>
+          {photos.length > 0 && (
+            // `data-zoom` opts these into the shared image lightbox, which
+            // otherwise only looks at images inside an article.
+            <ul data-zoom class="flex flex-wrap gap-2 pt-1">
+              {photos.map(photo => (
+                <li class="w-[calc(50%-0.25rem)] sm:w-48">
+                  <Image
+                    src={photo.src}
+                    alt={photo.alt}
+                    widths={photo.widths}
+                    sizes="(min-width: 640px) 12rem, 45vw"
+                    format="webp"
+                    loading="lazy"
+                    decoding="async"
+                    draggable="false"
+                    data-lightbox-src={photo.preview}
+                    class="aspect-4/3 w-full rounded-md border border-black/10 object-cover dark:border-white/15"
+                  />
+                </li>
+              ))}
+            </ul>
+          )}
+        </>
+      )}
+  </div>
+</GradientCard>

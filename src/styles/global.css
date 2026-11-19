@@ -73,6 +73,16 @@
     @apply prose-headings:font-semibold prose-p:font-serif;
     @apply prose-headings:text-black dark:prose-headings:text-white;
   }
+
+  /* Prose gives every block generous outer margins. Inside a card the first
+     and last blocks should sit flush with the padding instead. */
+  .prose-flush > :first-child {
+    margin-top: 0;
+  }
+
+  .prose-flush > :last-child {
+    margin-bottom: 0;
+  }
 }
 
 @layer utilities {
@@ -90,7 +100,8 @@
 /* Body images open in the lightbox, but only where hovering is meaningful;
    touch users tap images without a modal hijacking their scroll. */
 @media (pointer: fine) {
-  article img {
+  article img,
+  [data-zoom] img {
     cursor: zoom-in;
   }
 }

@@ -1,7 +1,8 @@
 ---
-// Progressive enhancement shared by article pages (blog, projects, writeups):
-// a Copy button on every code block and a click-to-zoom lightbox for body
-// images. Both are pure additions — the article reads fine without them.
+// Progressive enhancement shared by article pages (blog, projects, writeups)
+// and the Experience page's photo strips: a Copy button on every code block
+// and a click-to-zoom lightbox for body images. Both are pure additions — the
+// content reads fine without them.
 //
 // Scripts bind on `astro:page-load` because ClientRouter swaps pages without
 // re-running module scripts. Copy buttons carry a `data-copy-ready` guard and
@@ -76,14 +77,16 @@
     if (!window.matchMedia("(pointer: fine)").matches) return;
 
     const target = event.target as Element | null;
-    const image = target?.closest<HTMLImageElement>("article img");
+    // `[data-zoom]` covers media outside an article, like the experience
+    // photo strips on /work.
+    const image = target?.closest<HTMLImageElement>("article img, [data-zoom] img");
     if (!image || image.closest("a")) return;
 
     const dialog = document.querySelector<HTMLDialogElement>("[data-lightbox]");
     const preview = dialog?.querySelector<HTMLImageElement>("[data-lightbox-image]");
     if (!dialog || !preview || dialog.open) return;
 
-    preview.src = image.currentSrc || image.src;
+    preview.src = image.dataset.lightboxSrc || image.currentSrc || image.src;
     preview.alt = image.alt;
     dialog.showModal();
   });

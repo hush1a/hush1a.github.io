@@ -45,6 +45,10 @@ export const WRITEUP_BADGE = {
   tag: `${CHIP_BASE} gap-1 text-black/60 dark:text-white/60`,
 } as const;
 
+// Skill chip on an experience entry, sharing the writeup chip surface so the
+// two sections don't invent separate looks for the same kind of metadata.
+export const TAG_CHIP = `${CHIP_BASE} text-black/65 dark:text-white/65`;
+
 // Decorative colour for the difficulty chip: a dot rather than a tinted fill.
 export const DIFFICULTY_DOT = {
   Easy: "bg-green-600 dark:bg-green-400",

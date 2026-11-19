@@ -46,7 +46,8 @@ Run lint, build, and the CSS check before committing or pushing. Pushing to
   extend those instead of repeating utility strings.
 - Use `cn()` from `@lib/utils` (clsx + tailwind-merge) for conditional classes.
 - `ArticleEnhancements` (code Copy buttons, image lightbox) is included once
-  per article page: blog, project, and writeup details.
+  per article page: blog, project, and writeup details. The Experience page
+  also includes it so `[data-zoom]` photo strips open in the same lightbox.
 
 ## Content collections
 
@@ -57,7 +58,10 @@ Schemas: `src/content.config.ts` (zod). Collections: `blog`, `work`,
   (not `.slug`); render with `await render(entry)` from `astro:content` (not
   `entry.render()`); `entry.body` is `string | undefined`.
 - Entries live at `src/content/<collection>/<slug>/index.md`, with images
-  colocated and referenced relatively. `work` uses flat `.md` files.
+  colocated and referenced relatively. `work` uses flat `.md` files, with its
+  images in `src/content/work/images/`; optional `summary` feeds the homepage
+  preview, `tags` render as skill chips, `logo` shows an emblem beside the
+  company, and `gallery[]` renders a photo strip on the Experience page.
 - `projects`: `type` is `technical` or `consulting`; optional `role`, `event`,
   and `eventDetail` (parenthetical track/round) for the byline; optional
   `image` / `imageAlt` cover; `gallery[]`; grouped `stack[]` where `mine: true`
